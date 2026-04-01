@@ -3,99 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Futbol Haber Merkezi | Admin Paneli</title>
+    <title>BJK Haber | Admin & Taraftar Portalı</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; margin: 0; padding-bottom: 50px; }
-        header { background: #000; padding: 15px; border-bottom: 3px solid #00ff88; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .btn { background: #00ff88; color: black; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
+        :root { --ana-renk: #00ff88; --arka-plan: #0a0a0a; --kart-renk: #161616; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--arka-plan); color: white; margin: 0; }
         
-        /* Kayıt Formu */
-        #authArea { background: #1e1e1e; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #333; }
-        input, textarea { width: 100%; padding: 10px; margin: 10px 0; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 5px; box-sizing: border-box; }
+        /* Üst Menü */
+        header { background: #000; padding: 15px 5%; border-bottom: 2px solid var(--ana-renk); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 22px; font-weight: bold; color: white; text-transform: uppercase; letter-spacing: 2px; }
+        .logo span { color: var(--ana-renk); }
         
-        /* Haberler */
-        .haber-kart { background: #1e1e1e; border-radius: 10px; margin-bottom: 20px; border: 1px solid #333; overflow: hidden; transition: 0.3s; }
-        .haber-kart:hover { border-color: #00ff88; }
-        .haber-img { width: 100%; height: auto; min-height: 200px; background: #333; object-fit: cover; }
-        .haber-icerik { padding: 15px; }
-        h2 { color: #00ff88; margin-top: 0; }
-        
-        /* Admin Paneli */
-        #adminPanel { display: none; background: #222; padding: 20px; border: 2px solid #00ff88; border-radius: 10px; margin-top: 20px; }
-        .user-list { background: #000; padding: 10px; border-radius: 5px; font-size: 14px; color: #aaa; margin-top: 10px; }
+        /* Butonlar */
+        .btn { background: var(--ana-renk); color: black; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn:hover { transform: scale(1.05); background: white; }
+        .btn-admin { background: #333; color: white; margin-right: 10px; font-size: 12px; }
+
+        .container { max-width: 900px; margin: 20px auto; padding: 0 20px; }
+
+        /* Kayıt & Giriş Paneli */
+        #authSection { background: var(--kart-renk); padding: 25px; border-radius: 15px; border: 1px dashed #444; margin-bottom: 30px; text-align: center; }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; background: #222; border: 1px solid #444; color: white; border-radius: 8px; box-sizing: border-box; }
+
+        /* Haber Kartları */
+        .haber-listesi { display: flex; flex-direction: column; gap: 25px; }
+        .haber-kart { background: var(--kart-renk); border-radius: 15px; overflow: hidden; border: 1px solid #222; transition: 0.3s; position: relative; }
+        .haber-kart:hover { border-color: var(--ana-renk); transform: translateY(-5px); }
+        .haber-img { width: 100%; height: 350px; object-fit: cover; background: #222; }
+        .haber-icerik { padding: 20px; }
+        .haber-ust { display: flex; justify-content: space-between; font-size: 13px; color: #888; margin-bottom: 10px; }
+        h2 { margin: 0 0 15px 0; font-size: 24px; color: #fff; }
+        p { color: #ccc; line-height: 1.7; font-size: 16px; }
+
+        /* Admin Paneli Modalı */
+        #adminPanel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; padding: 40px 20px; box-sizing: border-box; overflow-y: auto; }
+        .panel-kutu { max-width: 500px; margin: 0 auto; background: #111; padding: 30px; border-radius: 20px; border: 2px solid var(--ana-renk); }
+        .kayitli-kullanicilar { background: #000; padding: 10px; border-radius: 8px; font-size: 14px; margin: 15px 0; border: 1px solid #333; }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="font-weight: bold; font-size: 20px;">⚽ FUTBOL<span style="color:#00ff88">HUB</span></div>
-    <button class="btn" onclick="adminModu()">ADMİN GİRİŞ</button>
+    <div class="logo">KARTAL<span>HABER</span></div>
+    <div>
+        <button class="btn btn-admin" onclick="adminAc()">Yönetici Paneli</button>
+        <button class="btn" id="navAuthBtn" onclick="window.scrollTo(0,0)">Giriş Yap</button>
+    </div>
 </header>
 
 <div class="container">
-    <div id="authArea">
-        <h3 style="margin-top:0">Haberlere Yorum Yapmak İçin Kayıt Ol</h3>
-        <input type="text" id="regUser" placeholder="Kullanıcı Adı">
-        <input type="password" id="regPass" placeholder="Şifre">
-        <button class="btn" style="width:100%" onclick="kayitOl()">KAYIT OL / GİRİŞ YAP</button>
-        <p id="welcomeMsg" style="color:#00ff88; display:none;"></p>
+    <div id="authSection">
+        <h3 id="authTitle">Taraftar Grubuna Katıl</h3>
+        <p style="color:#888">Haberleri ilk sen duy, yorum yapma hakkı kazan!</p>
+        <input type="text" id="u_ad" placeholder="Adın veya Kullanıcı Adın">
+        <input type="password" id="u_sifre" placeholder="Şifren">
+        <button class="btn" style="width:100%" onclick="kayitEt()">KAYIT OL VE GİRİŞ YAP</button>
     </div>
 
-    <div id="adminPanel">
-        <h2 style="text-align:center">Yönetim Paneli</h2>
-        <div class="user-list" id="users">Kayıtlı Kullanıcılar: (Henüz kimse yok)</div>
-        <hr color="#333">
-        <h3>Yeni Haber Paylaş</h3>
-        <input type="text" id="h_baslik" placeholder="Haber Başlığı">
-        <input type="text" id="h_resim" placeholder="Resim Linki (URL)">
-        <textarea id="h_ozet" rows="4" placeholder="Haber Detayı..."></textarea>
-        <button class="btn" style="width:100%" onclick="haberEkle()">HABERİ YAYINLA</button>
-    </div>
-
-    <div id="haberAkisi">
-        <div class="haber-kart">
-            <img src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=800" class="haber-img">
+    <div class="haber-listesi" id="haberAkisi">
+        <article class="haber-kart">
+            <img src="https://images.unsplash.com/photo-1518091043644-c1d445bcc97a?q=80&w=1000" class="haber-img">
             <div class="haber-icerik">
-                <h2>Beşiktaş Hazırlıklarına Tam Gaz Devam Ediyor</h2>
-                <p>Siyah-beyazlı ekip, hafta sonu oynanacak maç için tesislerde kampa girdi. Teknik direktör galibiyetten emin.</p>
+                <div class="haber-ust">
+                    <span>⚽ Beşiktaş JK</span>
+                    <span>📅 1 Nisan 2026</span>
+                </div>
+                <h2>Yeni Sezon Hazırlıkları Başladı!</h2>
+                <p>Kartal, Nevzat Demir Tesisleri'nde sabah idmanıyla hazırlıklarına devam ediyor. Teknik ekip kondisyon ağırlıklı bir çalışma yaptırdı.</p>
             </div>
+        </article>
+    </div>
+</div>
+
+<div id="adminPanel">
+    <div class="panel-kutu">
+        <h2 style="text-align:center; color:var(--ana-renk)">ADMİN KONTROL</h2>
+        <div class="kayitli-kullanicilar">
+            <strong>👥 Kayıtlı Taraftarlar:</strong> <br>
+            <span id="kullaniciListesi">Henüz kimse kayıt olmadı.</span>
         </div>
+        <hr color="#333">
+        <h3>Yeni Haber Yayınla</h3>
+        <input type="text" id="h_baslik" placeholder="Haber Başlığı">
+        <input type="text" id="h_resim" placeholder="Resim Linki (Google'dan kopyala yapıştır)">
+        <textarea id="h_detay" rows="5" placeholder="Haberin uzun açıklaması..."></textarea>
+        <button class="btn" style="width:100%" onclick="haberiBas()">HABERİ HERKESE GÖNDER</button>
+        <button class="btn" style="background:#ff4444; margin-top:10px; width:100%" onclick="adminKapat()">PANELİ KAPAT</button>
     </div>
 </div>
 
 <script>
-    let users = [];
+    let taraftarlar = [];
 
-    // Kayıt Fonksiyonu
-    function kayitOl() {
-        const user = document.getElementById('regUser').value;
-        if(user.length < 3) {
-            alert("Lütfen geçerli bir isim girin!");
-            return;
-        }
-        users.push(user);
-        document.getElementById('authArea').style.display = 'none';
-        document.getElementById('welcomeMsg').style.display = 'block';
-        document.getElementById('welcomeMsg').innerText = "Hoş geldin, " + user + "! Artık haberleri takip edebilirsin.";
+    // KAYIT FONKSİYONU
+    function kayitEt() {
+        let ad = document.getElementById('u_ad').value;
+        if(ad.length < 2) return alert("Lütfen ismini yaz!");
         
-        // Admin panelindeki listeyi güncelle
-        document.getElementById('users').innerText = "Kayıtlı Kullanıcılar: " + users.join(", ");
+        taraftarlar.push(ad);
+        document.getElementById('authSection').innerHTML = `<h2 style="color:var(--ana-renk)">Hoş geldin, ${ad}! 👋</h2><p>Sitemize başarıyla giriş yaptın.</p>`;
+        document.getElementById('navAuthBtn').innerText = "Profilim";
+        document.getElementById('kullaniciListesi').innerText = taraftarlar.join(", ");
     }
 
-    // Admin Paneli Açma
-    function adminModu() {
-        let sifre = prompt("Admin Şifresini Girin:");
+    // ADMİN PANELİ GİRİŞİ
+    function adminAc() {
+        let sifre = prompt("Lütfen Admin Şifresini Girin:");
         if(sifre === "beratadminoldu123") {
             document.getElementById('adminPanel').style.display = 'block';
-            window.scrollTo(0, document.getElementById('adminPanel').offsetTop);
         } else {
-            alert("Yetkisiz Giriş!");
+            alert("Şifre Yanlış! Sadece Berat giriş yapabilir.");
         }
     }
 
-    // Haber Ekleme
-    function haberEkle() {
-        const baslik = document.getElementById('h_baslik').value;
-        const resim = document.getElementById('h_resim').value;
-        const ozet = document.getElementById('h_oz
+    function adminKapat() { document.getElementById('adminPanel').style.display = 'none'; }
+
+    // HABER EKLEME (SİMÜLASYON)
+    function haberiBas() {
+        let baslik = document.getElementById('h_baslik').value;
+        let resim = document.getElementById('h_resim').value;
+        let detay = document.getElementById('h_detay').value;
+        let tarih = new Date().toLocaleDateString('tr-TR');
+
+        if(!baslik || !detay) return alert("Başlık ve Detay yazmalısın!");
+
+        let yeniHaberHtml = `
+            <article class="haber-kart">
+                <img src="${resim || 'https://via.placeholder.com/800x400?text=Gorsel+Yok'}" class="haber-img" onerror="this.src='https://via.placeholder.com/800x400?text=Gorsel+Hata'">
+                <div class="haber-icerik">
+                    <div class="haber-ust">
+                        <span>🔥 Son Dakika</span>
+                        <span>📅 ${tarih}</span>
+                    </div>
+                    <h2>${baslik}</h2>
+                    <p>${detay}</p>
+                </div>
+            </article>
+        `;
+
+        document.getElementById('haberAkisi').innerHTML = yeniHaberHtml + document.getElementById('haberAkisi').innerHTML;
+        
+        // Formu temizle ve kapat
+        document.getElementById('h_baslik').value = "";
+        document.getElementById('h_resim').value = "";
+        document.getElementById('h_detay').value = "";
+        adminKapat();
+        alert("Haber başarıyla eklendi! (Sayfayı yenilersen kodun içine yazmadığın için silinir)");
+    }
+</script>
+
+</body>
+</html>

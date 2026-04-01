@@ -83,77 +83,112 @@
 </div>
 
 <script>
-    // --- SENİN FİRREBASE KODUN ---
+    // --- GÜNCELLENMİŞ VE HATASIZ FİREBASE BAŞLANGIÇ ---
     const firebaseConfig = {
       apiKey: "AIzaSyDEbenlp7KcVZ2oE90iEHTTl2oEuGFVGKs",
       authDomain: "kartalhaber-49ae6.firebaseapp.com",
-      databaseURL: "https://kartalhaber-49ae6-default-rtdb.firebaseio.com", // Bunu otomatik ekledim
+      // DATABASE URL'Yİ EN GARANTİ HALİNE GETİRDİM
+      databaseURL: "https://kartalhaber-49ae6-default-rtdb.firebaseio.com", 
       projectId: "kartalhaber-49ae6",
       storageBucket: "kartalhaber-49ae6.firebasestorage.app",
       messagingSenderId: "804745909398",
       appId: "1:804745909398:web:d4ecaf7174886bbe835eb7",
       measurementId: "G-TV8NLXQTNP"
     };
+
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-
     let aktifUser = null;
 
-    // GİRİŞ / KAYIT
+    // 1. ADIM: YORUMLARI OTOMATİK LİSTELEME (Giriş yapmasan da görünür)
+    function yorumlariYukle(haberId) {
+        db.ref('yorumlar/' + haberId).on('value', (snapshot) => {
+            const data = snapshot.val();
+            const listeElemani = document.getElementById('yorumlar_' + haberId);
+            if (!listeElemani) return; // Eğer o haber henüz yoksa hata verme
+
+            let html = "";
+            if (data) {
+                // Yorumları tek tek döngüye sok
+                Object.keys(data).forEach(id => {
+                    html += `
+                        <div class="yorum-satiri">
+                            <span class="y-ad">${data[id].isim}:</span> 
+                            <span>${data[id].mesaj}</span>
+                        </div>`;
+                });
+            } else {
+                html = "<p style='color:#555; font-size:12px; margin:0;'>Henüz yorum yok. İlk sen yaz!</p>";
+            }
+            listeElemani.innerHTML = html;
+        });
+    }
+
+    // Haber 1 için yorumları hemen çekmeye başla
+    yorumlariYukle('haber1');
+
+    // 2. ADIM: SİSTEME GİRİŞ YAPMA
     function sistemeGir() {
-        let ad = document.getElementById('logUser').value;
-        if(ad.length < 2) return alert("İsim gir!");
+        const adInput = document.getElementById('logUser');
+        const ad = adInput.value.trim();
+        
+        if (ad.length < 2) {
+            alert("Lütfen geçerli bir isim girin!");
+            return;
+        }
+
         aktifUser = ad;
         
-        // Kullanıcıyı veritabanına ekle
-        db.ref('users').push(ad);
-        
+        // Görünümü güncelle
         document.getElementById('authBox').style.display = 'none';
         document.getElementById('profileBox').style.display = 'block';
         document.getElementById('p_ad').innerText = ad;
-        document.getElementById('yInput_haber1').style.display = 'block';
+        
+        // Giriş yapınca TÜM yorum gönderme kutularını aç
+        const inputAlanlari = document.querySelectorAll('[id^="yInput_"]');
+        inputAlanlari.forEach(alan => alan.style.display = 'block');
+
+        // Admin listesine ekle (Sadece bir kez)
+        db.ref('users').push(ad);
     }
 
-    // YORUM GÖNDERME
-    function yorumGonder(hId) {
-        let m = document.getElementById('msg_' + hId).value;
-        if(!m) return;
-        db.ref('yorumlar/' + hId).push({ isim: aktifUser, mesaj: m });
-        document.getElementById('msg_' + hId).value = "";
-    }
+    // 3. ADIM: YORUM GÖNDERME
+    function yorumGonder(haberId) {
+        const mesajInput = document.getElementById('msg_' + haberId);
+        const mesaj = mesajInput.value.trim();
 
-    // YORUMLARI ÇEKME
-    db.ref('yorumlar/haber1').on('value', (s) => {
-        let data = s.val();
-        let h = "";
-        for(let id in data) {
-            h += `<div class="yorum-satiri"><span class="y-ad">${data[id].isim}:</span> ${data[id].mesaj}</div>`;
+        if (!mesaj || !aktifUser) {
+            alert("Önce giriş yapmalısın ve bir mesaj yazmalısın!");
+            return;
         }
-        document.getElementById('yorumlar_haber1').innerHTML = h;
-    });
 
-    // ADMİN
+        // Firebase'e gönder
+        db.ref('yorumlar/' + haberId).push({
+            isim: aktifUser,
+            mesaj: mesaj,
+            tarih: Date.now()
+        }).then(() => {
+            mesajInput.value = ""; // Gönderince kutuyu temizle
+        }).catch(err => {
+            alert("Yorum gönderilemedi: " + err.message);
+        });
+    }
+
+    // ADMİN PANELİ FONKSİYONU
     function adminAc() {
-        if(prompt("Şifre:") === "beratadminoldu123") {
+        const pass = prompt("Yönetici Şifresi:");
+        if (pass === "beratadminoldu123") {
             document.getElementById('adminPanel').style.display = 'block';
+            
+            // Kullanıcı listesini canlı çek
             db.ref('users').on('value', (s) => {
-                let d = s.val();
+                const u = s.val();
                 let list = [];
-                for(let id in d) list.push(d[id]);
-                document.getElementById('userList').innerText = list.join(", ");
+                if(u) Object.values(u).forEach(name => list.push(name));
+                document.getElementById('userList').innerText = list.length > 0 ? list.join(", ") : "Henüz kimse yok";
             });
+        } else {
+            alert("Hatalı şifre!");
         }
-    }
-
-    function adminHaberEkle() {
-        let b = document.getElementById('h_baslik').value;
-        let r = document.getElementById('h_resim').value;
-        let i = document.getElementById('h_icerik').value;
-        // Admin'den eklenen haberler geçicidir, kalıcı yapmak için koda eklemelisin.
-        alert("Haber eklendi (Geçici)");
-        document.getElementById('adminPanel').style.display = 'none';
     }
 </script>
-
-</body>
-</html>

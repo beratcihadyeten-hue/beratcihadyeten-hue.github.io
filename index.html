@@ -3,123 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kartal Haber | Resmi Taraftar Sitesi</title>
+    <title>Kartal Haber | Taraftar Platformu</title>
     <style>
-        :root { --ana-renk: #00ff88; --arka-plan: #0a0a0a; --kart-renk: #161616; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--arka-plan); color: white; margin: 0; }
+        :root { --ana-renk: #00ff88; --arka-plan: #0d0d0d; --kart-renk: #1a1a1a; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--arka-plan); color: white; margin: 0; padding-bottom: 50px; }
         
+        /* Navigasyon */
         header { background: #000; padding: 15px 5%; border-bottom: 2px solid var(--ana-renk); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
-        .logo { font-size: 22px; font-weight: bold; letter-spacing: 2px; }
+        .logo { font-size: 24px; font-weight: bold; letter-spacing: 1px; }
         .logo span { color: var(--ana-renk); }
         
-        .btn { background: var(--ana-renk); color: black; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn:hover { background: white; }
+        /* Butonlar */
+        .btn { background: var(--ana-renk); color: black; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn:hover { background: white; transform: translateY(-2px); }
 
-        .container { max-width: 800px; margin: 20px auto; padding: 0 20px; }
+        .container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
 
-        /* Profil ve Giriş Alanı */
-        #authSection { background: var(--kart-renk); padding: 20px; border-radius: 15px; margin-bottom: 30px; text-align: center; border: 1px solid #333; }
-        #profileDisplay { display: none; background: #1a1a1a; padding: 15px; border-radius: 10px; border-left: 5px solid var(--ana-renk); margin-bottom: 20px; text-align: left; }
-        
-        input { width: 100%; padding: 10px; margin: 10px 0; background: #222; border: 1px solid #444; color: white; border-radius: 8px; box-sizing: border-box; }
+        /* Profil ve Kayıt Sistemi */
+        #authBox { background: var(--kart-renk); padding: 25px; border-radius: 12px; margin-bottom: 30px; border: 1px solid #333; text-align: center; }
+        #userProfile { display: none; background: #222; padding: 20px; border-radius: 12px; border-left: 6px solid var(--ana-renk); margin-bottom: 30px; }
+        .stats { display: flex; gap: 20px; margin-top: 10px; font-size: 13px; color: #aaa; }
 
-        /* Haber Kartı Tasarımı */
-        .haber-kart { background: var(--kart-renk); border-radius: 15px; overflow: hidden; border: 1px solid #222; margin-bottom: 25px; }
-        .haber-img { width: 100%; height: auto; max-height: 400px; object-fit: cover; }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: #262626; border: 1px solid #444; color: white; border-radius: 6px; box-sizing: border-box; }
+
+        /* Haber Kartları (Alt Alta Düzen) */
+        .haber-listesi { display: flex; flex-direction: column; gap: 30px; }
+        .haber-kart { background: var(--kart-renk); border-radius: 12px; overflow: hidden; border: 1px solid #222; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .haber-img { width: 100%; height: auto; display: block; }
         .haber-icerik { padding: 20px; }
-        .haber-ust { display: flex; justify-content: space-between; font-size: 13px; color: #888; margin-bottom: 10px; }
-        h2 { margin: 0 0 10px 0; color: #fff; }
-        p { color: #ccc; line-height: 1.6; }
+        .haber-ust { display: flex; justify-content: space-between; font-size: 12px; color: var(--ana-renk); font-weight: bold; margin-bottom: 10px; text-transform: uppercase; }
+        h2 { margin: 0 0 12px 0; font-size: 22px; line-height: 1.3; }
+        p { color: #ccc; line-height: 1.6; margin: 0; }
 
         /* Admin Paneli */
-        #adminPanel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; padding-top: 50px; }
-        .panel-kutu { max-width: 400px; margin: 0 auto; background: #111; padding: 20px; border-radius: 15px; border: 2px solid var(--ana-renk); }
+        #adminModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; }
+        .panel { background: #111; padding: 30px; border-radius: 15px; border: 2px solid var(--ana-renk); width: 90%; max-width: 400px; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo">BEŞİKTAŞ<span>HABER</span></div>
-    <button class="btn" style="background:#333; color:white; font-size:12px;" onclick="adminAc()">YÖNETİCİ</button>
+    <div class="logo">KARTAL<span>WEB</span></div>
+    <button class="btn" style="background:#222; color:white; font-size:11px;" onclick="adminAc()">ADMİN GİRİŞ</button>
 </header>
 
 <div class="container">
-    <div id="profileDisplay">
-        <h3 style="margin:0">👤 Profilim</h3>
-        <p id="p_isim" style="color:var(--ana-renk); font-weight:bold; margin:5px 0;"></p>
-        <span style="font-size:12px; color:#888;">Statü: Lisanslı Taraftar</span>
+    
+    <div id="userProfile">
+        <h2 style="margin:0; color:var(--ana-renk);">Hoş Geldin, <span id="usernameLabel">Taraftar</span>!</h2>
+        <div class="stats">
+            <span>🏆 Rütbe: Sadık Taraftar</span>
+            <span>💬 Yorum Sayısı: 0</span>
+        </div>
     </div>
 
-    <div id="authSection">
-        <h3>Taraftar Girişi</h3>
-        <input type="text" id="u_ad" placeholder="Kullanıcı Adınız">
-        <input type="password" id="u_sifre" placeholder="Şifreniz">
-        <button class="btn" style="width:100%" onclick="girisYap()">KAYIT OL / GİRİŞ YAP</button>
+    <div id="authBox">
+        <h3>Haber Merkezine Katıl</h3>
+        <p style="color:#888; font-size:14px;">Kayıt olarak profilini oluştur ve haberleri takip et.</p>
+        <input type="text" id="userInput" placeholder="Kullanıcı Adı">
+        <input type="password" id="passInput" placeholder="Şifre">
+        <button class="btn" style="width:100%" onclick="kayitOl()">KAYIT OL VE GİRİŞ YAP</button>
     </div>
 
-    <div id="haberAkisi">
+    <div class="haber-listesi" id="newsFeed">
+        <article class="haber-kart">
+    <img src="FOTOĞRAF_LİNKİ" class="haber-img">
+    <div class="haber-icerik">
+        <div class="haber-ust">
+            <span>⚽ Beşiktaş</span>
+            <span>📅 1 Nisan 2026</span>
+        </div>
+        <h2>BURAYA BAŞLIK GELECEK</h2>
+        <p>BURAYA HABERİN DETAYI GELECEK...</p>
+    </div>
+</article>
+        
         <article class="haber-kart">
             <img src="https://m.media-amazon.com/images/I/51rDqK-jIEL._AC_UF1000,1000_QL80_.jpg" class="haber-img">
             <div class="haber-icerik">
-                <div class="haber-ust">
-                    <span>⚽ Beşiktaş JK</span>
-                    <span>📅 1 Nisan 2026</span>
-                </div>
+                <div class="haber-ust"><span>⚽ Transfer</span><span>📅 1 Nisan 2026</span></div>
                 <h2>Beşiktaş Transferde Bombayı Patlatıyor!</h2>
-                <p>Siyah-beyazlı yönetim, dünya yıldızı oyuncu ile görüşmelere başladı. İstanbul'a gelmesi beklenen oyuncu için Vodafone Park'ta dev bir imza töreni planlanıyor. Camia bu transferle şampiyonluk yolunda büyük bir adım atmayı hedefliyor.</p>
+                <p>Yönetim, dünya yıldızı oyuncu ile masaya oturdu. İstanbul'da yapılacak görüşmeler sonrası resmi imzanın atılması bekleniyor.</p>
             </div>
         </article>
-        </div>
+
+        <article class="haber-kart">
+            <img src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=800" class="haber-img">
+            <div class="haber-icerik">
+                <div class="haber-ust"><span>🔥 Son Dakika</span><span>📅 1 Nisan 2026</span></div>
+                <h2>Derbi Hazırlıkları Tam Gaz Sürüyor</h2>
+                <p>Siyah-beyazlılar sabah idmanında taktik ağırlıklı çalıştı. Sakatlığı geçen oyuncular takımla birlikte idmanlara başladı.</p>
+            </div>
+        </article>
+
+    </div>
 </div>
 
-<div id="adminPanel">
-    <div class="panel-kutu">
-        <h2 style="text-align:center">Haber Ekle</h2>
-        <input type="text" id="h_baslik" placeholder="Başlık">
-        <input type="text" id="h_resim" placeholder="Resim Linki">
-        <input type="text" id="h_detay" placeholder="Kısa Özet">
-        <button class="btn" style="width:100%" onclick="geciciHaber()">YAYINLA (GEÇİCİ)</button>
-        <button class="btn" style="background:red; width:100%; margin-top:10px;" onclick="document.getElementById('adminPanel').style.display='none'">KAPAT</button>
+<div id="adminModal">
+    <div class="panel">
+        <h2 style="text-align:center">Haber Yayınla</h2>
+        <input type="text" id="hTitle" placeholder="Haber Başlığı">
+        <input type="text" id="hImg" placeholder="Resim Linki">
+        <input type="text" id="hText" placeholder="Haber Açıklaması">
+        <button class="btn" style="width:100%" onclick="addNews()">YAYINLA</button>
+        <button class="btn" style="background:red; width:100%; margin-top:10px;" onclick="adminKapat()">KAPAT</button>
     </div>
 </div>
 
 <script>
-    // GİRİŞ VE PROFİL SİSTEMİ
-    function girisYap() {
-        let isim = document.getElementById('u_ad').value;
-        if(isim.length < 2) return alert("Lütfen bir isim gir!");
-
-        document.getElementById('authSection').style.display = 'none';
-        document.getElementById('profileDisplay').style.display = 'block';
-        document.getElementById('p_isim').innerText = isim;
-        alert("Giriş Başarılı! Hoş geldin Kartal.");
+    // KAYIT VE PROFİL
+    function kayitOl() {
+        let name = document.getElementById('userInput').value;
+        if(name.length < 2) return alert("İsim çok kısa!");
+        
+        document.getElementById('authBox').style.display = 'none';
+        document.getElementById('userProfile').style.display = 'block';
+        document.getElementById('usernameLabel').innerText = name;
+        alert("Başarıyla kayıt oldun!");
     }
 
-    // ADMİN PANELİ
+    // ADMİN
     function adminAc() {
-        let s = prompt("Şifre gir:");
-        if(s === "beratadminoldu123") {
-            document.getElementById('adminPanel').style.display = 'block';
+        let p = prompt("Şifre:");
+        if(p === "beratadminoldu123") {
+            document.getElementById('adminModal').style.display = 'flex';
         }
     }
+    function adminKapat() { document.getElementById('adminModal').style.display = 'none'; }
 
-    // GEÇİCİ HABER (Sadece o anlık gözükür)
-    function geciciHaber() {
-        let b = document.getElementById('h_baslik').value;
-        let r = document.getElementById('h_resim').value;
-        let d = document.getElementById('h_detay').value;
+    // HABER EKLEME (GEÇİCİ)
+    function addNews() {
+        let t = document.getElementById('hTitle').value;
+        let i = document.getElementById('hImg').value;
+        let x = document.getElementById('hText').value;
         
-        let html = `
+        let newHtml = `
             <article class="haber-kart">
-                <img src="${r}" class="haber-img" onerror="this.src='https://via.placeholder.com/800x400'">
+                <img src="${i || 'https://via.placeholder.com/800x400'}" class="haber-img">
                 <div class="haber-icerik">
-                    <div class="haber-ust"><span>🔥 Flaş Haber</span><span>📅 Yeni</span></div>
-                    <h2>${b}</h2><p>${d}</p>
+                    <div class="haber-ust"><span>📣 Yeni Haber</span><span>📅 Bugün</span></div>
+                    <h2>${t}</h2><p>${x}</p>
                 </div>
             </article>
         `;
-        document.getElementById('haberAkisi').innerHTML = html + document.getElementById('haberAkisi').innerHTML;
-        document.getElementById('adminPanel').style.display = 'none';
+        document.getElementById('newsFeed').innerHTML = newHtml + document.getElementById('newsFeed').innerHTML;
+        adminKapat();
     }
 </script>
 

@@ -3,100 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kartal Haber | Canlı Yorumlar</title>
+    <title>Kartal Haber | Canlı Yorum Paneli</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
     <style>
         :root { --ana: #00ff88; --arka: #0a0a0a; --kart: #161616; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--arka); color: white; margin: 0; }
-        
-        header { background: #000; padding: 15px 5%; border-bottom: 2px solid var(--ana); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
-        .btn { background: var(--ana); color: black; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        
+        header { background: #000; padding: 15px 5%; border-bottom: 2px solid var(--ana); display: flex; justify-content: space-between; align-items: center; }
         .container { max-width: 1100px; margin: 20px auto; padding: 0 15px; }
 
-        /* --- YAN YANA DÜZEN (FLEX) --- */
-        .haber-wrapper { 
-            display: flex; 
-            gap: 20px; 
-            align-items: flex-start; 
-            margin-bottom: 40px;
-        }
-
-        /* Sol Taraf: Haber */
-        .haber-sol { flex: 2; background: var(--kart); border-radius: 12px; overflow: hidden; border: 1px solid #222; }
-        .haber-img { width: 100%; height: auto; display: block; border-bottom: 1px solid #333; }
+        /* YAN YANA DÜZEN */
+        .haber-wrapper { display: flex; gap: 20px; margin-bottom: 40px; align-items: flex-start; }
+        .haber-sol { flex: 2; background: var(--kart); border-radius: 12px; border: 1px solid #222; overflow: hidden; }
+        .haber-img { width: 100%; height: auto; display: block; }
         .haber-icerik { padding: 20px; }
 
-        /* Sağ Taraf: Yorumlar */
-        .yorum-sag { 
-            flex: 1; 
-            background: #000; 
-            border-radius: 12px; 
-            border: 1px solid var(--ana); 
-            display: flex; 
-            flex-direction: column;
-            max-height: 500px; /* Çok uzamasın diye */
-        }
-        .yorum-baslik { background: var(--ana); color: black; padding: 10px; font-weight: bold; text-align: center; border-radius: 10px 10px 0 0; }
-        .yorum-liste { padding: 10px; overflow-y: auto; flex-grow: 1; min-height: 200px; }
-        .yorum-satiri { background: #111; padding: 8px; margin-bottom: 8px; border-radius: 5px; font-size: 13px; border-left: 3px solid var(--ana); }
-        .y-ad { color: var(--ana); font-weight: bold; display: block; margin-bottom: 3px; }
+        .yorum-sag { flex: 1; background: #111; border-radius: 12px; border: 1px solid var(--ana); display: flex; flex-direction: column; min-height: 400px; max-height: 600px; }
+        .yorum-baslik { background: var(--ana); color: #000; padding: 10px; font-weight: bold; text-align: center; border-radius: 10px 10px 0 0; }
+        .yorum-liste { padding: 10px; overflow-y: auto; flex-grow: 1; font-size: 14px; }
+        .yorum-satiri { background: #1a1a1a; padding: 8px; margin-bottom: 8px; border-radius: 5px; border-left: 3px solid var(--ana); word-break: break-all; }
+        .y-ad { color: var(--ana); font-weight: bold; margin-right: 5px; }
 
-        /* Alt Kısım: Yorum Yazma */
-        .yorum-yaz { padding: 10px; border-top: 1px solid #333; background: #050505; }
-        input { width: 100%; padding: 10px; background: #222; border: 1px solid #444; color: white; border-radius: 5px; margin-bottom: 5px; box-sizing: border-box; }
+        .yorum-yaz { padding: 10px; border-top: 1px solid #333; }
+        input { width: 100%; padding: 10px; background: #222; border: 1px solid #444; color: white; border-radius: 5px; box-sizing: border-box; margin-bottom: 5px; }
+        .btn { background: var(--ana); color: #000; border: none; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; font-weight: bold; }
 
-        /* Giriş Paneli */
         #authBox { background: var(--kart); padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center; border: 1px solid #333; }
-
-        @media (max-width: 800px) { .haber-wrapper { flex-direction: column; } .yorum-sag { width: 100%; } }
+        @media (max-width: 800px) { .haber-wrapper { flex-direction: column; } }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="font-weight:bold; font-size:24px;">KARTAL<span>WEB</span></div>
-    <button class="btn" style="font-size:11px; background:#222; color:white;" onclick="adminAc()">ADMİN</button>
+    <div style="font-weight:bold; font-size:22px;">KARTAL<span>WEB</span></div>
 </header>
 
 <div class="container">
     <div id="authBox">
-        <h3>Haberleri Tartışmak İçin Giriş Yap</h3>
-        <input type="text" id="logUser" placeholder="Kullanıcı Adınız" style="max-width: 300px;">
-        <button class="btn" onclick="sistemeGir()">Giriş Yap</button>
+        <h3>Yorum Yapmak İçin İsmini Yaz</h3>
+        <input type="text" id="logUser" placeholder="Kullanıcı Adı" style="max-width:300px;">
+        <button class="btn" style="max-width:300px;" onclick="sistemeGir()">Giriş Yap</button>
     </div>
 
     <div id="haberAkisi">
-        
         <div class="haber-wrapper">
             <article class="haber-sol">
                 <img src="https://m.media-amazon.com/images/I/51rDqK-jIEL._AC_UF1000,1000_QL80_.jpg" class="haber-img">
                 <div class="haber-icerik">
-                    <h2>Beşiktaş'ta Yeni Transfer Gelişmesi!</h2>
-                    <p>Siyah-beyazlı ekip, orta sahaya takviye için düğmeye bastı. Görüşmelerin olumlu geçtiği ve oyuncunun önümüzdeki hafta İstanbul'a geleceği öğrenildi.</p>
+                    <h2>Beşiktaş'ta Yeni Dönem Başlıyor!</h2>
+                    <p>Transferler ve yeni sezon hazırlıklarıyla Kartal şampiyonluk yolunda emin adımlarla ilerliyor.</p>
                 </div>
             </article>
 
             <aside class="yorum-sag">
-                <div class="yorum-baslik">CANLI YORUMLAR</div>
-                <div class="yorum-liste" id="yorumlar_haber1">
-                    <p style="color:#555; text-align:center;">Yükleniyor...</p>
+                <div class="yorum-baslik">TARAFTAR YORUMLARI</div>
+                <div class="yorum-liste" id="yorumListesi_haber1">
+                    <p style="text-align:center; color:#555;">Yorumlar yükleniyor...</p>
                 </div>
-                
                 <div class="yorum-yaz" id="yInput_haber1" style="display:none;">
-                    <input type="text" id="msg_haber1" placeholder="Mesajını yaz...">
-                    <button class="btn" style="width:100%; font-size:12px;" onclick="yorumGonder('haber1')">GÖNDER</button>
+                    <input type="text" id="msg_haber1" placeholder="Mesajını buraya yaz...">
+                    <button class="btn" onclick="yorumGonder('haber1')">GÖNDER</button>
                 </div>
             </aside>
         </div>
-
     </div>
 </div>
 
 <script>
-    // --- FIREBASE AYARLARIN ---
     const firebaseConfig = {
       apiKey: "AIzaSyDEbenlp7KcVZ2oE90iEHTTl2oEuGFVGKs",
       authDomain: "kartalhaber-49ae6.firebaseapp.com",
@@ -111,39 +85,51 @@
     const db = firebase.database();
     let aktifUser = null;
 
-    // SİSTEME GİRİŞ
-    function sistemeGir() {
-        let ad = document.getElementById('logUser').value.trim();
-        if(ad.length < 2) return alert("İsim yazmalısın!");
-        aktifUser = ad;
-        document.getElementById('authBox').innerHTML = `<h3>Hoş geldin, <span style="color:var(--ana)">${ad}</span>! İyi yorumlar.</h3>`;
-        document.querySelectorAll('[id^="yInput_"]').forEach(el => el.style.display = 'block');
+    // Yorumları Çekme Fonksiyonu
+    function yorumlariCek(hId) {
+        db.ref('yorumlar/' + hId).on('value', (snapshot) => {
+            const list = document.getElementById('yorumListesi_' + hId);
+            const data = snapshot.val();
+            let html = "";
+            if (data) {
+                Object.values(data).forEach(y => {
+                    html += `<div class="yorum-satiri"><span class="y-ad">${y.isim}:</span>${y.mesaj}</div>`;
+                });
+            } else {
+                html = "<p style='text-align:center; color:#444;'>Henüz yorum yok. İlk yorumu sen yap!</p>";
+            }
+            list.innerHTML = html;
+            list.scrollTop = list.scrollHeight;
+        }, (error) => {
+            console.error("Hata:", error);
+            document.getElementById('yorumListesi_' + hId).innerHTML = "<p style='color:red'>Hata! Rules ayarlarını kontrol et.</p>";
+        });
     }
 
-    // YORUM GÖNDERME
+    // Giriş Yap
+    function sistemeGir() {
+        let ad = document.getElementById('logUser').value.trim();
+        if(ad.length < 2) return alert("En az 2 harfli bir isim gir!");
+        aktifUser = ad;
+        document.getElementById('authBox').innerHTML = `<h3>Hoş geldin <span style="color:var(--ana)">${ad}</span></h3>`;
+        document.getElementById('yInput_haber1').style.display = 'block';
+    }
+
+    // Yorum Gönder
     function yorumGonder(hId) {
         let m = document.getElementById('msg_' + hId).value.trim();
         if(!m) return;
-        db.ref('yorumlar/' + hId).push({ isim: aktifUser, mesaj: m, t: Date.now() });
-        document.getElementById('msg_' + hId).value = "";
+        db.ref('yorumlar/' + hId).push({
+            isim: aktifUser,
+            mesaj: m,
+            t: Date.now()
+        }).then(() => {
+            document.getElementById('msg_' + hId).value = "";
+        });
     }
 
-    // YORUMLARI ÇEKME (HABER 1)
-    db.ref('yorumlar/haber1').on('value', (s) => {
-        let data = s.val();
-        let h = "";
-        if(data) {
-            Object.values(data).forEach(y => {
-                h += `<div class="yorum-satiri"><span class="y-ad">${y.isim}:</span>${y.mesaj}</div>`;
-            });
-        } else { h = "<p style='color:#444; font-size:12px; text-align:center;'>İlk yorumu sen yap!</p>"; }
-        document.getElementById('yorumlar_haber1').innerHTML = h;
-        // Otomatik aşağı kaydır
-        let list = document.getElementById('yorumlar_haber1');
-        list.scrollTop = list.scrollHeight;
-    });
-
-    function adminAc() { if(prompt("Şifre:") === "beratadminoldu123") { alert("Admin paneli yakında güncellenecek."); } }
+    // Sayfa açılır açılmaz yorumları yükle
+    yorumlariCek('haber1');
 </script>
 
 </body>

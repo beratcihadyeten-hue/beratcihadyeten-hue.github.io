@@ -3,102 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Futbol Haber Merkezi | Admin & Giriş</title>
+    <title>Futbol Haber Merkezi | Admin Paneli</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; margin: 0; }
-        header { background: #000; padding: 15px; border-bottom: 2px solid #00ff88; display: flex; justify-content: space-between; align-items: center; }
-        .admin-btn { background: #00ff88; color: black; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; text-decoration: none; font-size: 12px; }
-        .container { max-width: 800px; margin: 20px auto; padding: 20px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; margin: 0; padding-bottom: 50px; }
+        header { background: #000; padding: 15px; border-bottom: 3px solid #00ff88; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .btn { background: #00ff88; color: black; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
         
-        /* Haber Kartları */
-        .haber-kart { background: #1e1e1e; border-radius: 10px; margin-bottom: 20px; border: 1px solid #333; padding: 15px; }
-        .haber-img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; background: #333; margin-bottom: 10px; }
-        h2 { color: #00ff88; margin: 0; }
+        /* Kayıt Formu */
+        #authArea { background: #1e1e1e; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #333; }
+        input, textarea { width: 100%; padding: 10px; margin: 10px 0; background: #2a2a2a; border: 1px solid #444; color: white; border-radius: 5px; box-sizing: border-box; }
         
-        /* Admin Paneli Modal */
-        #adminPanel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; overflow-y: auto; }
-        .panel-icerik { width: 90%; max-width: 500px; margin: 50px auto; background: #222; padding: 20px; border-radius: 10px; border: 1px solid #00ff88; }
-        input, textarea { width: 100%; padding: 10px; margin: 10px 0; background: #333; border: 1px solid #444; color: white; border-radius: 5px; box-sizing: border-box; }
-        .panel-btn { background: #00ff88; color: black; border: none; padding: 10px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 5px; }
+        /* Haberler */
+        .haber-kart { background: #1e1e1e; border-radius: 10px; margin-bottom: 20px; border: 1px solid #333; overflow: hidden; transition: 0.3s; }
+        .haber-kart:hover { border-color: #00ff88; }
+        .haber-img { width: 100%; height: auto; min-height: 200px; background: #333; object-fit: cover; }
+        .haber-icerik { padding: 15px; }
+        h2 { color: #00ff88; margin-top: 0; }
+        
+        /* Admin Paneli */
+        #adminPanel { display: none; background: #222; padding: 20px; border: 2px solid #00ff88; border-radius: 10px; margin-top: 20px; }
+        .user-list { background: #000; padding: 10px; border-radius: 5px; font-size: 14px; color: #aaa; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <header>
-    <div id="adminGirisButonu">
-        <a href="javascript:void(0)" class="admin-btn" onclick="adminGiris()">ADMİN PANEL</a>
-    </div>
-    <div style="font-weight: bold; letter-spacing: 2px;">FUTBOL <span style="color: #00ff88;">HABER</span></div>
-    <div>
-        <button class="admin-btn" style="background: #333; color: white;" onclick="alert('Kayıt Sistemi Simülasyonu Aktif!')">KAYIT / GİRİŞ</button>
-    </div>
+    <div style="font-weight: bold; font-size: 20px;">⚽ FUTBOL<span style="color:#00ff88">HUB</span></div>
+    <button class="btn" onclick="adminModu()">ADMİN GİRİŞ</button>
 </header>
 
-<div class="container" id="haberlerAlani">
-    <div class="haber-kart">
-        <div class="haber-img" style="display: flex; align-items: center; justify-content: center;">Haber Görseli Bekleniyor...</div>
-        <h2>Hoş Geldiniz!</h2>
-        <p>Admin panelinden ilk haberinizi ekleyerek başlayın.</p>
+<div class="container">
+    <div id="authArea">
+        <h3 style="margin-top:0">Haberlere Yorum Yapmak İçin Kayıt Ol</h3>
+        <input type="text" id="regUser" placeholder="Kullanıcı Adı">
+        <input type="password" id="regPass" placeholder="Şifre">
+        <button class="btn" style="width:100%" onclick="kayitOl()">KAYIT OL / GİRİŞ YAP</button>
+        <p id="welcomeMsg" style="color:#00ff88; display:none;"></p>
     </div>
-</div>
 
-<div id="adminPanel">
-    <div class="panel-icerik">
-        <h2 style="text-align: center;">Yönetim Paneli</h2>
-        <hr border="1" color="#333">
-        <h3>Haber Ekle</h3>
+    <div id="adminPanel">
+        <h2 style="text-align:center">Yönetim Paneli</h2>
+        <div class="user-list" id="users">Kayıtlı Kullanıcılar: (Henüz kimse yok)</div>
+        <hr color="#333">
+        <h3>Yeni Haber Paylaş</h3>
         <input type="text" id="h_baslik" placeholder="Haber Başlığı">
-        <input type="text" id="h_resim" placeholder="Resim URL (Link)">
-        <textarea id="h_ozet" rows="3" placeholder="Kısa Özet"></textarea>
-        <button class="panel-btn" onclick="haberEkle()">HABERİ YAYINLA</button>
-        <br><br>
-        <button class="panel-btn" style="background: #ff4444;" onclick="document.getElementById('adminPanel').style.display='none'">KAPAT</button>
+        <input type="text" id="h_resim" placeholder="Resim Linki (URL)">
+        <textarea id="h_ozet" rows="4" placeholder="Haber Detayı..."></textarea>
+        <button class="btn" style="width:100%" onclick="haberEkle()">HABERİ YAYINLA</button>
+    </div>
+
+    <div id="haberAkisi">
+        <div class="haber-kart">
+            <img src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=800" class="haber-img">
+            <div class="haber-icerik">
+                <h2>Beşiktaş Hazırlıklarına Tam Gaz Devam Ediyor</h2>
+                <p>Siyah-beyazlı ekip, hafta sonu oynanacak maç için tesislerde kampa girdi. Teknik direktör galibiyetten emin.</p>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-    // Şifre Kontrolü
-    function adminGiris() {
-        let sifre = prompt("Lütfen Admin Şifresini Girin:");
-        if (sifre === "beratadminoldu123") {
-            document.getElementById('adminPanel').style.display = 'block';
-        } else {
-            alert("Hatalı Şifre! Erişim Reddedildi.");
-        }
-    }
+    let users = [];
 
-    // Haber Ekleme Fonksiyonu
-    function haberEkle() {
-        let baslik = document.getElementById('h_baslik').value;
-        let resim = document.getElementById('h_resim').value;
-        let ozet = document.getElementById('h_ozet').value;
-
-        if(baslik == "" || ozet == "") {
-            alert("Lütfen başlık ve özet alanlarını doldurun!");
+    // Kayıt Fonksiyonu
+    function kayitOl() {
+        const user = document.getElementById('regUser').value;
+        if(user.length < 3) {
+            alert("Lütfen geçerli bir isim girin!");
             return;
         }
-
-        let haberAlani = document.getElementById('haberlerAlani');
+        users.push(user);
+        document.getElementById('authArea').style.display = 'none';
+        document.getElementById('welcomeMsg').style.display = 'block';
+        document.getElementById('welcomeMsg').innerText = "Hoş geldin, " + user + "! Artık haberleri takip edebilirsin.";
         
-        let yeniHaber = `
-            <div class="haber-kart">
-                <img src="${resim || 'https://via.placeholder.com/800x400'}" class="haber-img" onerror="this.src='https://via.placeholder.com/800x400?text=Resim+Bulunamadi'">
-                <h2>${baslik}</h2>
-                <p>${ozet}</p>
-            </div>
-        `;
-
-        haberAlani.innerHTML = yeniHaber + haberAlani.innerHTML;
-        
-        // Paneli kapat ve temizle
-        document.getElementById('adminPanel').style.display = 'none';
-        document.getElementById('h_baslik').value = "";
-        document.getElementById('h_resim').value = "";
-        document.getElementById('h_ozet').value = "";
-        
-        alert("Haber başarıyla eklendi!");
+        // Admin panelindeki listeyi güncelle
+        document.getElementById('users').innerText = "Kayıtlı Kullanıcılar: " + users.join(", ");
     }
-</script>
 
-</body>
-</html>
+    // Admin Paneli Açma
+    function adminModu() {
+        let sifre = prompt("Admin Şifresini Girin:");
+        if(sifre === "beratadminoldu123") {
+            document.getElementById('adminPanel').style.display = 'block';
+            window.scrollTo(0, document.getElementById('adminPanel').offsetTop);
+        } else {
+            alert("Yetkisiz Giriş!");
+        }
+    }
+
+    // Haber Ekleme
+    function haberEkle() {
+        const baslik = document.getElementById('h_baslik').value;
+        const resim = document.getElementById('h_resim').value;
+        const ozet = document.getElementById('h_oz

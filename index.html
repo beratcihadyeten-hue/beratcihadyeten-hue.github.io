@@ -25,8 +25,18 @@
         
         /* Haber ve Yorum Düzeni */
         .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
-        .haber-box { background: var(--kart); border-radius: 20px; overflow: hidden; border: 1px solid #222; }
-        .haber-img { width: 100%; height: 400px; object-fit: cover; }
+        .haber-box { background: var(--kart); border-radius: 20px; overflow: hidden; border: 1px solid #222; margin-bottom: 20px; }
+        
+        /* FOTOĞRAFLARIN TELEFONA GÖRE AYARLANMASI (KRİTİK KISIM) */
+        .haber-img { 
+            width: 100%; 
+            max-width: 100%; /* Resmin dışarı taşmasını engeller */
+            height: auto;   /* Oranını bozmadan boyutu ayarlar */
+            max-height: 500px; 
+            object-fit: cover; 
+            display: block;
+        }
+        
         .haber-text { padding: 30px; }
         
         /* Yorum Alanı */
@@ -48,7 +58,12 @@
         .admin-content { max-width: 600px; margin: auto; background: #111; padding: 30px; border-radius: 20px; border: 2px solid var(--ana); max-height: 80vh; overflow-y: auto; }
         .user-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222; }
 
-        @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } .yorum-sidebar { position: relative; top: 0; height: 500px; } }
+        @media (max-width: 900px) { 
+            .main-grid { grid-template-columns: 1fr; } 
+            .yorum-sidebar { position: relative; top: 0; height: 500px; } 
+            .haber-img { max-height: 300px; } /* Mobil ekranda resim çok yer kaplamasın */
+            .haber-text { padding: 20px; }
+        }
     </style>
 </head>
 <body>
@@ -84,32 +99,23 @@
     <div class="main-grid">
         <div class="haber-sol">
             <article class="haber-box">
-        <article class="haber-box" style="margin-top: 30px;">
-    <img src="https://image.hurimg.com/i/hurriyet/90/770x0/69cceaf121129e50cb41e91a.jpg" class="haber-img">
-    <div class="haber-text">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <span style="background: var(--ana); color: #000; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 12px;">
-                TRANSFER
-            </span>
-            <span style="color: #888; font-size: 13px; font-weight: 500;">
-                📅 1 Nisan 2026 | 22:15
-            </span>
-        </div>
+                <img src="https://image.hurimg.com/i/hurriyet/90/770x0/69cceaf121129e50cb41e91a.jpg" class="haber-img">
+                <div class="haber-text">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <span style="background: var(--ana); color: #000; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 12px;">TRANSFER</span>
+                        <span style="color: #888; font-size: 13px; font-weight: 500;">📅 1 Nisan 2026 | 22:15</span>
+                    </div>
+                    <h1 style="margin:10px 0; font-size: 28px;">Beşiktaş'ta ayrılık kararı! Yönetim 'kulüp bul' dedi</h1>
+                    <p style="line-height: 1.6; color: #ccc; font-size: 16px;">Teknik direktör Sergen Yalçın, kadroda yer açmak adına kiralık oynayan oyuncusuna kulüp bul mesajı verdi.</p>
+                    <div style="margin-top: 20px; border-top: 1px solid #222; padding-top: 10px; color: var(--ana); font-size: 12px; font-weight: bold;">✍️ Editör: Berat</div>
+                </div>
+            </article>
 
-        <h1 style="margin:10px 0; font-size: 28px;">Beşiktaş'ta ayrılık kararı! Yönetim 'kulüp bul' dedi</h1>
-        <p style="line-height: 1.6; color: #ccc; font-size: 16px;">
-            Teknik direktör Sergen Yalçın, kadroda yer açmak adına kiralık oynayan oyuncusuna kulüp bul mesajı verdi.
-        </p>
-        
-        <div style="margin-top: 20px; border-top: 1px solid #222; padding-top: 10px; color: var(--ana); font-size: 12px; font-weight: bold;">
-            ✍️ Editör: Berat
-        </div>
-    </div>
-</article>
+            <article class="haber-box">
                 <img src="https://m.media-amazon.com/images/I/51rDqK-jIEL._AC_UF1000,1000_QL80_.jpg" class="haber-img">
                 <div class="haber-text">
                     <span style="color:var(--ana); font-weight:bold; font-size:14px;">FLAŞ HABER</span>
-                    <h1 style="margin:10px 0;">Beşiktaş Transferde Rotayı Avrupa'ya Kırdı!</h1>
+                    <h1 style="margin:10px 0; font-size: 28px;">Beşiktaş Transferde Rotayı Avrupa'ya Kırdı!</h1>
                     <p style="line-height:1.6; color:#ccc;">Siyah-beyazlı yönetim, teknik heyetin raporu doğrultusunda eksik bölgeler için temaslarını hızlandırdı. Taraftarlar sosyal medyada büyük bir heyecanla resmi açıklamayı bekliyor.</p>
                 </div>
             </article>
@@ -136,7 +142,6 @@
 </div>
 
 <script>
-    // --- FİREBASE CONFIG (DEĞİŞTİRME) ---
     const firebaseConfig = {
       apiKey: "AIzaSyDEbenlp7KcVZ2oE90iEHTTl2oEuGFVGKs",
       authDomain: "kartalhaber-49ae6.firebaseapp.com",
@@ -150,23 +155,16 @@
     const db = firebase.database();
     let aktifUser = null;
 
-    // 1. KAYIT OLMA (AYNI İSİM KONTROLLÜ)
     function kayitOl() {
         const ad = document.getElementById('regUser').value.trim();
         const sifre = document.getElementById('regPass').value.trim();
-
         if(ad.length < 3 || sifre.length < 3) return alert("Kullanıcı adı ve şifre en az 3 karakter olmalı!");
-
-        // Önce bu isim var mı diye kontrol et
         db.ref('users/' + ad).once('value', (s) => {
             if(s.exists()) {
-                alert("Bu kullanıcı adı zaten alınmış! Başka bir isim dene.");
+                alert("Bu kullanıcı adı zaten alınmış!");
             } else {
-                db.ref('users/' + ad).set({
-                    sifre: sifre,
-                    kayitTarihi: Date.now()
-                }).then(() => {
-                    alert("Kayıt başarılı! Şimdi giriş yapabilirsin.");
+                db.ref('users/' + ad).set({ sifre: sifre, kayitTarihi: Date.now() }).then(() => {
+                    alert("Kayıt başarılı! Giriş yapabilirsin.");
                     document.getElementById('regUser').value = "";
                     document.getElementById('regPass').value = "";
                 });
@@ -174,18 +172,12 @@
         });
     }
 
-    // 2. GİRİŞ YAPMA
     function girisYap() {
         const ad = document.getElementById('logUser').value.trim();
         const sifre = document.getElementById('logPass').value.trim();
-
         db.ref('users/' + ad).once('value', (s) => {
             const data = s.val();
-            if(data && data.sifre === sifre) {
-                basariliGiris(ad);
-            } else {
-                alert("Hatalı kullanıcı adı veya şifre!");
-            }
+            if(data && data.sifre === sifre) { basariliGiris(ad); } else { alert("Hatalı bilgiler!"); }
         });
     }
 
@@ -198,7 +190,6 @@
         yorumlariCek('haber1');
     }
 
-    // 3. YORUM SİSTEMİ
     function yorumGonder(hId) {
         const m = document.getElementById('msg_' + hId).value.trim();
         if(!m) return;
@@ -221,7 +212,6 @@
         });
     }
 
-    // 4. ADMİN PANELİ (SADECE KAYITLILARI GÖRME)
     function adminPanelAc() {
         const pass = prompt("Yönetici Şifresi:");
         if(pass === "beratadminoldu123") {
@@ -232,16 +222,12 @@
                 for(let isim in users) {
                     h += `<div class="user-row"><span>👤 ${isim}</span> <span style="color:#666;">Şifre: ${users[isim].sifre}</span></div>`;
                 }
-                document.getElementById('adminUserList').innerHTML = h || "Henüz kayıtlı kullanıcı yok.";
+                document.getElementById('adminUserList').innerHTML = h || "Kayıt yok.";
             });
-        } else {
-            alert("Yetkisiz Giriş!");
-        }
+        } else { alert("Yetkisiz!"); }
     }
 
-    // İlk açılışta yorumları göster (Giriş yapmasa da görsün)
     yorumlariCek('haber1');
 </script>
-
 </body>
 </html>

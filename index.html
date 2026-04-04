@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KartalPortal | Üç Büyükler Özel</title>
+    <title>KartalPortal | Premium Taraftar Platformu</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
@@ -17,17 +17,14 @@
 
         .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
 
-        /* ÜÇ BÜYÜKLER SAYAÇ GRİDİ */
-        .sayac-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 30px; }
-        .mac-sayac { padding: 20px; border-radius: 15px; text-align: center; border: 1px solid #222; position: relative; overflow: hidden; }
-        
-        /* Takım Temaları */
+        /* ÜÇ BÜYÜKLER SAYAÇ TASARIMI - Yeni Eklendi */
+        .sayac-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .mac-sayac { padding: 20px; border-radius: 15px; text-align: center; border: 1px solid #222; }
         .bjk-tema { background: linear-gradient(135deg, #000 0%, #222 100%); border-bottom: 4px solid #fff; }
         .gs-tema { background: linear-gradient(135deg, #a90432 0%, #fdb912 100%); border-bottom: 4px solid #fdb912; color: #fff; }
         .fb-tema { background: linear-gradient(135deg, #002d72 0%, #fedd00 100%); border-bottom: 4px solid #fedd00; color: #fff; }
-
-        .sayac-baslik { font-size: 14px; font-weight: 800; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
-        .sayac-zaman { font-size: 24px; font-weight: 900; font-family: 'Courier New', monospace; }
+        .sayac-baslik { font-size: 14px; font-weight: 800; margin-bottom: 10px; text-transform: uppercase; }
+        .sayac-zaman { font-size: 24px; font-weight: 900; font-family: monospace; }
 
         .auth-container { display: flex; gap: 20px; margin-bottom: 40px; flex-wrap: wrap; }
         .auth-card { background: var(--kart); padding: 25px; border-radius: 15px; border: 1px solid #222; flex: 1; min-width: 300px; transition: 0.3s; }
@@ -46,9 +43,11 @@
         input { width: 100%; padding: 12px; margin: 8px 0; background: #1a1a1a; border: 1px solid #333; color: white; border-radius: 8px; box-sizing: border-box; outline: none; }
         input:focus { border-color: var(--ana); }
         .btn { background: var(--ana); color: #000; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; }
+        .btn-admin { background: #222; color: #fff; width: auto; font-size: 12px; }
 
         #adminModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; padding: 40px; box-sizing: border-box; }
         .admin-content { max-width: 600px; margin: auto; background: #111; padding: 30px; border-radius: 20px; border: 2px solid var(--ana); max-height: 80vh; overflow-y: auto; }
+        .user-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222; }
 
         @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } .yorum-sidebar { position: relative; top: 0; height: 500px; } }
     </style>
@@ -58,23 +57,23 @@
 <header>
     <div class="logo">KARTAL<span>PORTAL</span></div>
     <div id="navRight">
-        <button class="btn btn-admin" style="background: #222; color: #fff; width: auto; font-size: 12px;" onclick="adminPanelAc()">ADMİN GİRİŞİ</button>
+        <button class="btn btn-admin" onclick="adminPanelAc()">ADMİN GİRİŞİ</button>
     </div>
 </header>
 
 <div class="container">
-    <div class="sayac-container">
+    <div class="sayac-grid">
         <div class="mac-sayac bjk-tema">
             <div class="sayac-baslik">🦅 BEŞİKTAŞ (1903)</div>
-            <div id="bjkTimer" class="sayac-zaman">--:--:--</div>
+            <div id="bjkTimer" class="sayac-zaman">Yükleniyor...</div>
         </div>
         <div class="mac-sayac gs-tema">
             <div class="sayac-baslik">🦁 GALATASARAY</div>
-            <div id="gsTimer" class="sayac-zaman">--:--:--</div>
+            <div id="gsTimer" class="sayac-zaman">Yükleniyor...</div>
         </div>
         <div class="mac-sayac fb-tema">
             <div class="sayac-baslik">🟡 FENERBAHÇE</div>
-            <div id="fbTimer" class="sayac-zaman">--:--:--</div>
+            <div id="fbTimer" class="sayac-zaman">Yükleniyor...</div>
         </div>
     </div>
 
@@ -99,13 +98,13 @@
     </div>
 
     <div class="main-grid">
-        <div class="haber-sol">
+        <div class="haber-sol" id="haberListesi">
             <article class="haber-box">
                 <img src="https://image.fanatik.com.tr/i/fanatik/75/0x410/69ccfef7e558b6bdbdb65150.jpg" class="haber-img">
                 <div class="haber-text">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                         <span style="background: var(--ana); color: #000; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 12px;">ANTREMAN</span>
-                        <span style="color: #888; font-size: 13px; font-weight: 500;">📅 1 Nisan 2026 | 22:18</span>
+                        <span style="color: #888; font-size: 13px; font-weight: 500;">📅 1 Nisan 2026</span>
                     </div>
                     <h1 style="margin:10px 0; font-size: 28px;">Beşiktaş, derbi hazırlıklarına devam etti</h1>
                     <p style="line-height: 1.6; color: #ccc;">Antrenman, kondisyon ve taktik çalışmasıyla sona erdi.</p>
@@ -134,7 +133,7 @@
 </div>
 
 <script>
-    // Firebase Config
+    // SENİN FİREBASE BİLGİLERİN
     const firebaseConfig = {
       apiKey: "AIzaSyDEbenlp7KcVZ2oE90iEHTTl2oEuGFVGKs",
       authDomain: "kartalhaber-49ae6.firebaseapp.com",
@@ -148,11 +147,11 @@
     const db = firebase.database();
     let aktifUser = null;
 
-    // SAYAÇ FONKSİYONU
-    function sayacBaslat(id, hedefTarih) {
+    // SAYAÇ SİSTEMİ - Yeni
+    function baslatSayac(id, tarih) {
         setInterval(() => {
-            const fark = new Date(hedefTarih).getTime() - new Date().getTime();
-            if (fark < 0) { document.getElementById(id).innerHTML = "MAÇ BAŞLADI!"; return; }
+            const fark = new Date(tarih).getTime() - new Date().getTime();
+            if(fark < 0) { document.getElementById(id).innerHTML = "MAÇ BAŞLADI!"; return; }
             const g = Math.floor(fark / 86400000);
             const s = Math.floor((fark % 86400000) / 3600000);
             const d = Math.floor((fark % 3600000) / 60000);
@@ -160,13 +159,11 @@
             document.getElementById(id).innerHTML = `${g}g ${s}s ${d}d ${sn}s`;
         }, 1000);
     }
+    baslatSayac("bjkTimer", "April 12, 2026 20:00:00");
+    baslatSayac("gsTimer", "April 13, 2026 19:00:00");
+    baslatSayac("fbTimer", "April 14, 2026 21:00:00");
 
-    // Maç Tarihlerini Buradan Ayarla
-    sayacBaslat("bjkTimer", "April 12, 2026 20:00:00");
-    sayacBaslat("gsTimer", "April 13, 2026 19:00:00");
-    sayacBaslat("fbTimer", "April 14, 2026 21:00:00");
-
-    // YouTube Fonksiyonu
+    // SENİN YOUTUBE FONKSİYONUN
     const YT_API_KEY = "AIzaSyD3SXiufKR5EI269yI0hdnA4qPRDcGQK_g";
     const KANAL_ID = "UCi07VzOQKLNzepjVB1USq4Q";
 
@@ -183,17 +180,17 @@
                                 <h1 style="margin:10px 0; font-size:24px;">${v.snippet.title}</h1>
                             </div>
                         </article>`;
-                    document.querySelector('.haber-sol').insertAdjacentHTML('afterbegin', html);
+                    document.getElementById('haberListesi').insertAdjacentHTML('afterbegin', html);
                 }
             });
     }
 
-    // Diğer kayıt/giriş/admin fonksiyonların (Aynı Kalsın)
+    // SENİN KAYIT/GİRİŞ FONKSİYONLARIN
     function kayitOl() {
         const ad = document.getElementById('regUser').value.trim();
         const sifre = document.getElementById('regPass').value.trim();
-        if(ad.length < 3) return alert("Hata!");
-        db.ref('users/' + ad).set({ sifre: sifre, kayitTarihi: Date.now() }).then(() => alert("Kayıt Başarılı!"));
+        if(ad.length < 3) return;
+        db.ref('users/' + ad).set({ sifre: sifre, kayitTarihi: Date.now() }).then(() => alert("Kayıt Tamam!"));
     }
 
     function girisYap() {
@@ -207,7 +204,7 @@
                 document.getElementById('userDisplay').innerText = ad;
                 document.getElementById('yInput_haber1').style.display = 'block';
                 yorumlariCek('haber1');
-            } else alert("Hatalı!");
+            } else alert("Hata!");
         });
     }
 
@@ -229,7 +226,7 @@
             document.getElementById('adminModal').style.display = 'block';
             db.ref('users').once('value', s => {
                 let h = "";
-                for(let i in s.val()) h += `<div style="padding:10px; border-bottom:1px solid #222;">👤 ${i} - ${s.val()[i].sifre}</div>`;
+                for(let i in s.val()) h += `<div class="user-row">👤 ${i} - ${s.val()[i].sifre}</div>`;
                 document.getElementById('adminUserList').innerHTML = h;
             });
         }

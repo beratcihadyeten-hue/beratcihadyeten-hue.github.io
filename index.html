@@ -237,6 +237,44 @@
     }
 
     yorumlariCek('haber1');
+    // YOUTUBE OTOMATİK VİDEO ÇEKME FONKSİYONU
+const YT_API_KEY = "AIzaSyD3SXiufKR5EI269yI0hdnA4qPRDcGQK_g"; // 1. Adımda aldığın anahtar
+const KANAL_ID = "UCi07VzOQKLNzepjVB1USq4Q"; // Kanalının ID'si (Kanal ayarlarında yazar)
+
+function youtubeVideolariGetir() {
+    const url = `https://www.googleapis.com/youtube/v3/search?key=${YT_API_KEY}&channelId=${KANAL_ID}&part=snippet,id&order=date&maxResults=1`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.items && data.items.length > 0) {
+                const video = data.items[0];
+                const videoId = video.id.videoId;
+                const videoTitle = video.snippet.title;
+
+                const videoHTML = `
+                    <article class="haber-box">
+                        <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+                            <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" 
+                                src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>
+                        </div>
+                        <div class="haber-text">
+                            <span style="background: #ff0000; color: #fff; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 12px;">YOUTUBE SON VİDEO</span>
+                            <h1 style="margin:10px 0; font-size: 24px;">${videoTitle}</h1>
+                            <div style="margin-top: 10px; color: var(--ana); font-size: 12px; font-weight: bold;">✍️ Otomatik Yayınlandı</div>
+                        </div>
+                    </article>
+                `;
+                
+                // Videoyu haber listesinin en başına ekle
+                document.querySelector('.haber-sol').insertAdjacentHTML('afterbegin', videoHTML);
+            }
+        })
+        .catch(err => console.error("YouTube hatası:", err));
+}
+
+// Sayfa açıldığında videoyu çek
+youtubeVideolariGetir();
 </script>
 </body>
 </html>

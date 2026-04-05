@@ -215,7 +215,7 @@
     }
 
     // YOUTUBE OTOMATİK ÇEKME
-    fetch(`https://www.googleapis.com/youtube/v3/search?key=AIzaSyD3SXiufKR5EI269yI0hdnA4qPRDcGQK_g&channelId=UCi07VzOQKLNzepjVB1USq4Q&part=snippet,id&order=date&maxResults=1&type=video`)
+    fetch(`https://www.googleapis.com/youtube/v3/search?key=AIzaSyD3SXiufKR5EI269yI0hdnA4qPRDcGQK_g&channelId=UC7-saBTRrj6MorxbLf6gVCwpart=snippet,id&order=date&maxResults=1&type=video`)
     .then(r => r.json()).then(data => {
         if(data.items.length > 0) {
             const v = data.items[0];

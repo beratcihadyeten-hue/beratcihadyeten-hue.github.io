@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KartalPortal | Premium Taraftar Platformu</title>
+    <title>KartalPortal | Gerçek Zamanlı Maç Merkezi</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
@@ -17,13 +17,14 @@
 
         .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
 
-        /* OTOMATİK SAYAÇ SİSTEMİ */
+        /* MAÇ SİSTEMİ STİLLERİ */
         .sayac-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 30px; }
         .mac-sayac { padding: 20px; border-radius: 15px; text-align: center; border: 1px solid #222; }
         .bjk-tema { background: linear-gradient(135deg, #000 0%, #222 100%); border-bottom: 4px solid #fff; }
-        .gs-tema { background: linear-gradient(135deg, #a90432 0%, #fdb912 100%); border-bottom: 4px solid #fdb912; color: #fff; }
-        .fb-tema { background: linear-gradient(135deg, #002d72 0%, #fedd00 100%); border-bottom: 4px solid #fedd00; color: #fff; }
-        .sayac-baslik { font-size: 14px; font-weight: 800; margin-bottom: 10px; text-transform: uppercase; }
+        .gs-tema { background: linear-gradient(135deg, #a90432 0%, #fdb912 100%); border-bottom: 4px solid #fdb912; }
+        .fb-tema { background: linear-gradient(135deg, #002d72 0%, #fedd00 100%); border-bottom: 4px solid #fedd00; }
+        .sayac-baslik { font-size: 14px; font-weight: 800; margin-bottom: 5px; text-transform: uppercase; }
+        .rakip-bilgi { font-size: 12px; opacity: 0.8; margin-bottom: 10px; font-weight: bold; }
         .sayac-zaman { font-size: 24px; font-weight: 900; font-family: monospace; }
 
         .auth-container { display: flex; gap: 20px; margin-bottom: 40px; flex-wrap: wrap; }
@@ -34,11 +35,10 @@
         .haber-img { width: 100%; height: auto; display: block; object-fit: cover; max-height: 450px; }
         .haber-text { padding: 30px; }
         
-        /* HABER ALTI DETAYLARI */
+        /* HABER ALTI YAZAR VE DETAYLAR */
         .haber-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .kategori-tag { background: var(--ana); color: #000; padding: 4px 12px; border-radius: 6px; font-weight: bold; font-size: 12px; }
-        .tarih-tag { color: #888; font-size: 13px; }
-        .editor-footer { margin-top: 20px; border-top: 1px solid #222; padding-top: 15px; color: var(--ana); font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        .editor-footer { margin-top: 20px; border-top: 1px solid #222; padding-top: 15px; color: var(--ana); font-size: 14px; font-weight: bold; }
 
         .yorum-sidebar { background: #0a0a0a; border-radius: 20px; border: 1px solid var(--ana); display: flex; flex-direction: column; height: 600px; position: sticky; top: 100px; }
         .y-header { background: var(--ana); color: #000; padding: 15px; font-weight: bold; text-align: center; border-radius: 18px 18px 0 0; }
@@ -48,11 +48,8 @@
         input { width: 100%; padding: 12px; margin: 8px 0; background: #1a1a1a; border: 1px solid #333; color: white; border-radius: 8px; box-sizing: border-box; outline: none; }
         .btn { background: var(--ana); color: #000; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
 
-        /* MOBİL OPTİMİZASYON */
         @media (max-width: 768px) {
             .main-grid { grid-template-columns: 1fr; }
-            .auth-card { min-width: 100%; }
-            .logo { font-size: 20px; }
             header { padding: 10px 3%; }
             .sayac-zaman { font-size: 18px; }
             .yorum-sidebar { position: relative; top: 0; height: 450px; }
@@ -70,29 +67,19 @@
 </header>
 
 <div class="container">
-    <div class="sayac-grid">
-        <div class="mac-sayac bjk-tema"><div class="sayac-baslik">🦅 BEŞİKTAŞ (1903)</div><div id="bjkTimer" class="sayac-zaman">--:--:--</div></div>
-        <div class="mac-sayac gs-tema"><div class="sayac-baslik">🦁 GALATASARAY</div><div id="gsTimer" class="sayac-zaman">--:--:--</div></div>
-        <div class="mac-sayac fb-tema"><div class="sayac-baslik">🟡 FENERBAHÇE</div><div id="fbTimer" class="sayac-zaman">--:--:--</div></div>
-    </div>
+    <div class="sayac-grid" id="macMerkezi">
+        </div>
 
     <div id="authArea" class="auth-container">
         <div class="auth-card">
-            <h3 style="margin:0 0 10px 0">🦅 Kayıt Ol</h3>
-            <input type="text" id="regUser" placeholder="Kullanıcı Adı">
-            <input type="password" id="regPass" placeholder="Şifre">
-            <button class="btn" onclick="kayitOl()">KAYIT OL</button>
-        </div>
-        <div class="auth-card">
-            <h3 style="margin:0 0 10px 0">⚽ Giriş Yap</h3>
+            <h3 style="margin:0 0 10px 0">🦅 Kayıt Ol / Giriş</h3>
             <input type="text" id="logUser" placeholder="Kullanıcı Adı">
             <input type="password" id="logPass" placeholder="Şifre">
-            <button class="btn" onclick="girisYap()">GİRİŞ YAP</button>
+            <div style="display:flex; gap:10px;">
+                <button class="btn" onclick="girisYap()">GİRİŞ</button>
+                <button class="btn" style="background:#333; color:#fff;" onclick="kayitOl()">KAYIT</button>
+            </div>
         </div>
-    </div>
-
-    <div id="welcomeBox" style="display:none; background:var(--kart); padding:20px; border-radius:15px; margin-bottom:30px; border-left:6px solid var(--ana);">
-        <h2 style="margin:0">Hoş geldin, <span id="userDisplay" style="color:var(--ana)"></span>!</h2>
     </div>
 
     <div class="main-grid">
@@ -101,14 +88,12 @@
                 <img src="https://image.fanatik.com.tr/i/fanatik/75/0x410/69ccfef7e558b6bdbdb65150.jpg" class="haber-img">
                 <div class="haber-text">
                     <div class="haber-meta">
-                        <span class="kategori-tag">GÜNDEM</span>
-                        <span class="tarih-tag">📅 5 Nisan 2026</span>
+                        <span class="kategori-tag">HABER</span>
+                        <span id="haberTarih" class="tarih-tag"></span>
                     </div>
-                    <h1 style="margin:10px 0; font-size: 28px;">Beşiktaş Derbi Hazırlıkları Tam Gaz</h1>
-                    <p style="line-height: 1.6; color: #ccc;">Nevzat Demir Tesisleri'nde gerçekleştirilen antrenman taktik ağırlıklı geçti.</p>
-                    <div class="editor-footer">
-                        <span>✍️ Editör:</span> <span style="color:white">Berat</span>
-                    </div>
+                    <h1>Beşiktaş Derbi Hazırlıkları Devam Ediyor</h1>
+                    <p>Takımımız, hafta sonu oynanacak maç için tesislerde kampa girdi.</p>
+                    <div class="editor-footer">✍️ Editör: Berat</div>
                 </div>
             </article>
         </div>
@@ -127,7 +112,7 @@
 <div id="adminModal"><div class="admin-content"><h2 style="color:var(--ana)">Yönetici Paneli</h2><div id="adminUserList"></div><button class="btn" onclick="document.getElementById('adminModal').style.display='none'">KAPAT</button></div></div>
 
 <script>
-    // FİREBASE YAPISI
+    // FİREBASE BİLGİLERİN
     const firebaseConfig = {
       apiKey: "AIzaSyDEbenlp7KcVZ2oE90iEHTTl2oEuGFVGKs",
       authDomain: "kartalhaber-49ae6.firebaseapp.com",
@@ -141,39 +126,56 @@
     const db = firebase.database();
     let aktifUser = null;
 
-    // OTOMATİK SİSTEM: Maç günlerini hesaplar
-    function getNextMatch(dayIndex) {
-        let now = new Date();
-        let next = new Date();
-        next.setDate(now.getDate() + (dayIndex + 7 - now.getDay()) % 7);
-        next.setHours(20, 0, 0, 0);
-        if (next < now) next.setDate(next.getDate() + 7);
-        return next.getTime();
+    // GERÇEK ZAMANLI MAÇ VERİ MERKEZİ (JSON SİSTEMİ)
+    // Buradaki tarihleri güncellediğinde sitedeki tüm sayaçlar anında düzelir.
+    const MAC_VERILERI = [
+        { id: "bjk", ad: "Beşiktaş", rakip: "Fenerbahçe", tarih: "April 12, 2026 20:00:00", tema: "bjk-tema" },
+        { id: "gs", ad: "Galatasaray", rakip: "Antalyaspor", tarih: "April 13, 2026 19:00:00", tema: "gs-tema" },
+        { id: "fb", ad: "Fenerbahçe", rakip: "Beşiktaş", tarih: "April 12, 2026 20:00:00", tema: "fb-tema" }
+    ];
+
+    function maclariYukle() {
+        let html = "";
+        MAC_VERILERI.forEach(m => {
+            html += `
+                <div class="mac-sayac ${m.tema}">
+                    <div class="sayac-baslik">🦅 ${m.ad}</div>
+                    <div class="rakip-bilgi">Rakip: ${m.rakip}</div>
+                    <div id="${m.id}Timer" class="sayac-zaman">--:--:--</div>
+                </div>`;
+        });
+        document.getElementById('macMerkezi').innerHTML = html;
     }
 
-    function updateTimers() {
-        const matches = [
-            { id: "bjkTimer", time: getNextMatch(6) }, 
-            { id: "gsTimer", time: getNextMatch(0) },  
-            { id: "fbTimer", time: getNextMatch(1) }   
-        ];
-        matches.forEach(m => {
-            const diff = m.time - new Date().getTime();
-            const g = Math.floor(diff / 86400000);
-            const s = Math.floor((diff % 86400000) / 3600000);
-            const d = Math.floor((diff % 3600000) / 60000);
-            const sn = Math.floor((diff % 60000) / 1000);
-            document.getElementById(m.id).innerText = `${g}g ${s}s ${d}d ${sn}s`;
+    function sayaclariGuncelle() {
+        MAC_VERILERI.forEach(m => {
+            const hedef = new Date(m.tarih).getTime();
+            const simdi = new Date().getTime();
+            const fark = hedef - simdi;
+
+            if (fark < 0) {
+                document.getElementById(m.id + "Timer").innerText = "MAÇ BAŞLADI";
+            } else {
+                const g = Math.floor(fark / 86400000);
+                const s = Math.floor((fark % 86400000) / 3600000);
+                const d = Math.floor((fark % 3600000) / 60000);
+                const sn = Math.floor((fark % 60000) / 1000);
+                document.getElementById(m.id + "Timer").innerText = `${g}g ${s}s ${d}d ${sn}s`;
+            }
         });
     }
-    setInterval(updateTimers, 1000);
 
-    // KULLANICI FONKSİYONLARI
+    // FONKSİYONLARI BAŞLAT
+    maclariYukle();
+    setInterval(sayaclariGuncelle, 1000);
+    document.getElementById('haberTarih').innerText = "📅 " + new Date().toLocaleDateString('tr-TR');
+
+    // FİREBASE & DİĞER KODLARIN (BOZULMADI)
     function kayitOl() {
-        const ad = document.getElementById('regUser').value.trim();
-        const sifre = document.getElementById('regPass').value.trim();
+        const ad = document.getElementById('logUser').value.trim();
+        const sifre = document.getElementById('logPass').value.trim();
         if(ad.length < 3) return;
-        db.ref('users/' + ad).set({ sifre: sifre }).then(() => alert("Kayıt Başarılı!"));
+        db.ref('users/' + ad).set({ sifre: sifre }).then(() => alert("Kayıt Tamam!"));
     }
 
     function girisYap() {
@@ -182,9 +184,7 @@
         db.ref('users/' + ad).once('value', s => {
             if(s.val() && s.val().sifre === sifre) {
                 aktifUser = ad;
-                document.getElementById('authArea').style.display = 'none';
-                document.getElementById('welcomeBox').style.display = 'block';
-                document.getElementById('userDisplay').innerText = ad;
+                document.getElementById('authArea').innerHTML = `<h2 style="color:var(--ana)">Hoş geldin, ${ad}!</h2>`;
                 document.getElementById('yInput_haber1').style.display = 'block';
                 yorumlariCek('haber1');
             } else alert("Hata!");
@@ -193,7 +193,7 @@
 
     function yorumGonder(hId) {
         const m = document.getElementById('msg_' + hId).value.trim();
-        if(m) { db.ref('yorumlar/' + hId).push({ isim: aktifUser, mesaj: m }); document.getElementById('msg_' + hId).value = ""; }
+        if(m && aktifUser) { db.ref('yorumlar/' + hId).push({ isim: aktifUser, mesaj: m }); document.getElementById('msg_' + hId).value = ""; }
     }
 
     function yorumlariCek(hId) {
@@ -215,23 +215,13 @@
         }
     }
 
-    // YOUTUBE: YENİ KANAL ID EKLENDİ
+    // YOUTUBE (UC7-saBTRrj6MorxbLf6gVCw)
     const KANAL_ID = "UC7-saBTRrj6MorxbLf6gVCw";
-    const YT_API_KEY = "AIzaSyD3SXiufKR5EI269yI0hdnA4qPRDcGQK_g";
-
-    fetch(`https://www.googleapis.com/youtube/v3/search?key=${YT_API_KEY}&channelId=${KANAL_ID}&part=snippet,id&order=date&maxResults=1&type=video`)
+    fetch(`https://www.googleapis.com/youtube/v3/search?key=AIzaSyD3SXiufKR5EI269yI0hdnA4qPRDcGQK_g&channelId=${KANAL_ID}&part=snippet,id&order=date&maxResults=1&type=video`)
     .then(r => r.json()).then(data => {
         if(data.items && data.items.length > 0) {
             const v = data.items[0];
-            const html = `
-                <article class="haber-box">
-                    <iframe style="width:100%; aspect-ratio:16/9; border:0;" src="https://www.youtube.com/embed/${v.id.videoId}" allowfullscreen></iframe>
-                    <div class="haber-text">
-                        <div class="haber-meta"><span class="kategori-tag" style="background:red; color:white;">YOUTUBE SON VİDEO</span></div>
-                        <h1 style="font-size:22px; margin:10px 0;">${v.snippet.title}</h1>
-                        <div class="editor-footer">✍️ Otomatik Yayınlandı</div>
-                    </div>
-                </article>`;
+            const html = `<article class="haber-box"><iframe style="width:100%; aspect-ratio:16/9; border:0;" src="https://www.youtube.com/embed/${v.id.videoId}" allowfullscreen></iframe></article>`;
             document.getElementById('haberMain').insertAdjacentHTML('afterbegin', html);
         }
     });

@@ -17,12 +17,12 @@
 
         .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
 
-        /* ÜÇ BÜYÜKLER OTOMATİK SAYAÇ - YENİ VE MOBİL UYUMLU */
+        /* SAYAÇ SİSTEMİ */
         .sayac-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 30px; }
         .mac-sayac { padding: 20px; border-radius: 15px; text-align: center; border: 1px solid #222; }
         .bjk-tema { background: linear-gradient(135deg, #000 0%, #222 100%); border-bottom: 4px solid #fff; }
-        .gs-tema { background: linear-gradient(135deg, #a90432 0%, #fdb912 100%); border-bottom: 4px solid #fdb912; }
-        .fb-tema { background: linear-gradient(135deg, #002d72 0%, #fedd00 100%); border-bottom: 4px solid #fedd00; }
+        .gs-tema { background: linear-gradient(135deg, #a90432 0%, #fdb912 100%); border-bottom: 4px solid #fdb912; color: #fff; }
+        .fb-tema { background: linear-gradient(135deg, #002d72 0%, #fedd00 100%); border-bottom: 4px solid #fedd00; color: #fff; }
         .sayac-baslik { font-size: 14px; font-weight: 800; margin-bottom: 10px; text-transform: uppercase; }
         .sayac-zaman { font-size: 24px; font-weight: 900; font-family: monospace; }
 
@@ -31,25 +31,30 @@
         
         .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
         .haber-box { background: var(--kart); border-radius: 20px; overflow: hidden; border: 1px solid #222; margin-bottom: 30px; }
-        .haber-img { width: 100%; height: auto; display: block; }
+        .haber-img { width: 100%; height: auto; display: block; object-fit: cover; max-height: 450px; }
         .haber-text { padding: 30px; }
         
+        /* HABER ALTI YAZAR VE DETAYLAR */
+        .haber-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .kategori-tag { background: var(--ana); color: #000; padding: 4px 12px; border-radius: 6px; font-weight: bold; font-size: 12px; }
+        .tarih-tag { color: #888; font-size: 13px; }
+        .editor-footer { margin-top: 20px; border-top: 1px solid #222; padding-top: 15px; color: var(--ana); font-size: 14px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+
         .yorum-sidebar { background: #0a0a0a; border-radius: 20px; border: 1px solid var(--ana); display: flex; flex-direction: column; height: 600px; position: sticky; top: 100px; }
         .y-header { background: var(--ana); color: #000; padding: 15px; font-weight: bold; text-align: center; border-radius: 18px 18px 0 0; }
         .y-liste { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
         .y-item { background: #161616; padding: 12px; border-radius: 10px; border-left: 4px solid var(--ana); }
         
         input { width: 100%; padding: 12px; margin: 8px 0; background: #1a1a1a; border: 1px solid #333; color: white; border-radius: 8px; box-sizing: border-box; outline: none; }
-        .btn { background: var(--ana); color: #000; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
+        .btn { background: var(--ana); color: #000; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; }
 
-        /* TELEFON OPTİMİZASYONU */
         @media (max-width: 768px) {
             .main-grid { grid-template-columns: 1fr; }
             .auth-card { min-width: 100%; }
             .logo { font-size: 20px; }
             header { padding: 10px 3%; }
-            .sayac-zaman { font-size: 20px; }
-            .yorum-sidebar { position: relative; top: 0; height: 500px; }
+            .sayac-zaman { font-size: 18px; }
+            .yorum-sidebar { position: relative; top: 0; height: 450px; }
         }
 
         #adminModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; padding: 40px; box-sizing: border-box; }
@@ -65,7 +70,7 @@
 
 <div class="container">
     <div class="sayac-grid">
-        <div class="mac-sayac bjk-tema"><div class="sayac-baslik">🦅 BEŞİKTAŞ</div><div id="bjkTimer" class="sayac-zaman">--:--:--</div></div>
+        <div class="mac-sayac bjk-tema"><div class="sayac-baslik">🦅 BEŞİKTAŞ (1903)</div><div id="bjkTimer" class="sayac-zaman">--:--:--</div></div>
         <div class="mac-sayac gs-tema"><div class="sayac-baslik">🦁 GALATASARAY</div><div id="gsTimer" class="sayac-zaman">--:--:--</div></div>
         <div class="mac-sayac fb-tema"><div class="sayac-baslik">🟡 FENERBAHÇE</div><div id="fbTimer" class="sayac-zaman">--:--:--</div></div>
     </div>
@@ -94,8 +99,15 @@
             <article class="haber-box">
                 <img src="https://image.fanatik.com.tr/i/fanatik/75/0x410/69ccfef7e558b6bdbdb65150.jpg" class="haber-img">
                 <div class="haber-text">
-                    <h1>Beşiktaş Derbi Hazırlıkları Tam Gaz</h1>
-                    <p>Nevzat Demir Tesisleri'nde çalışmalar sürüyor.</p>
+                    <div class="haber-meta">
+                        <span class="kategori-tag">GÜNDEM</span>
+                        <span class="tarih-tag">📅 5 Nisan 2026</span>
+                    </div>
+                    <h1 style="margin:10px 0; font-size: 28px;">Beşiktaş Derbi Hazırlıkları Tam Gaz</h1>
+                    <p style="line-height: 1.6; color: #ccc;">Nevzat Demir Tesisleri'nde gerçekleştirilen antrenman taktik ağırlıklı geçti.</p>
+                    <div class="editor-footer">
+                        <span>✍️ Editör:</span> <span style="color:white">Berat</span>
+                    </div>
                 </div>
             </article>
         </div>
@@ -114,7 +126,7 @@
 <div id="adminModal"><div class="admin-content"><h2 style="color:var(--ana)">Yönetici Paneli</h2><div id="adminUserList"></div><button class="btn" onclick="document.getElementById('adminModal').style.display='none'">KAPAT</button></div></div>
 
 <script>
-    // ORİJİNAL FİREBASE YAPIN
+    // FİREBASE BİLGİLERİN
     const firebaseConfig = {
       apiKey: "AIzaSyDEbenlp7KcVZ2oE90iEHTTl2oEuGFVGKs",
       authDomain: "kartalhaber-49ae6.firebaseapp.com",
@@ -128,7 +140,7 @@
     const db = firebase.database();
     let aktifUser = null;
 
-    // OTOMATİK SİSTEM: Her hafta sonu için maç hesaplar
+    // OTOMATİK MAÇ SİSTEMİ
     function getNextMatch(dayIndex) {
         let now = new Date();
         let next = new Date();
@@ -140,9 +152,9 @@
 
     function updateTimers() {
         const matches = [
-            { id: "bjkTimer", time: getNextMatch(6) }, // Cmt
-            { id: "gsTimer", time: getNextMatch(0) },  // Paz
-            { id: "fbTimer", time: getNextMatch(1) }   // Pzt
+            { id: "bjkTimer", time: getNextMatch(6) }, // Cumartesi
+            { id: "gsTimer", time: getNextMatch(0) },  // Pazar
+            { id: "fbTimer", time: getNextMatch(1) }   // Pazartesi
         ];
         matches.forEach(m => {
             const diff = m.time - new Date().getTime();
@@ -155,7 +167,7 @@
     }
     setInterval(updateTimers, 1000);
 
-    // SENİN KAYIT/GİRİŞ FONKSİYONLARIN
+    // DİĞER FONKSİYONLAR
     function kayitOl() {
         const ad = document.getElementById('regUser').value.trim();
         const sifre = document.getElementById('regPass').value.trim();
@@ -196,18 +208,26 @@
             document.getElementById('adminModal').style.display = 'block';
             db.ref('users').once('value', s => {
                 let h = "";
-                for(let i in s.val()) h += `<div style="color:white; padding:5px;">👤 ${i} - ${s.val()[i].sifre}</div>`;
+                for(let i in s.val()) h += `<div style="color:white; padding:5px; border-bottom:1px solid #333;">👤 ${i} - ${s.val()[i].sifre}</div>`;
                 document.getElementById('adminUserList').innerHTML = h;
             });
         }
     }
 
-    // YOUTUBE (Senin Orijinal Kodun)
+    // YOUTUBE OTOMATİK ÇEKME
     fetch(`https://www.googleapis.com/youtube/v3/search?key=AIzaSyD3SXiufKR5EI269yI0hdnA4qPRDcGQK_g&channelId=UCi07VzOQKLNzepjVB1USq4Q&part=snippet,id&order=date&maxResults=1&type=video`)
     .then(r => r.json()).then(data => {
         if(data.items.length > 0) {
             const v = data.items[0];
-            const html = `<article class="haber-box"><iframe style="width:100%; aspect-ratio:16/9; border:0;" src="https://www.youtube.com/embed/${v.id.videoId}" allowfullscreen></iframe></article>`;
+            const html = `
+                <article class="haber-box">
+                    <iframe style="width:100%; aspect-ratio:16/9; border:0;" src="https://www.youtube.com/embed/${v.id.videoId}" allowfullscreen></iframe>
+                    <div class="haber-text">
+                        <div class="haber-meta"><span class="kategori-tag" style="background:red; color:white;">YOUTUBE</span></div>
+                        <h1 style="font-size:22px;">${v.snippet.title}</h1>
+                        <div class="editor-footer">✍️ Otomatik Yayınlandı</div>
+                    </div>
+                </article>`;
             document.getElementById('haberMain').insertAdjacentHTML('afterbegin', html);
         }
     });

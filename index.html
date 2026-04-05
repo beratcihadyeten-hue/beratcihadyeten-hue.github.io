@@ -53,6 +53,15 @@
         input { width: 100%; padding: 12px; margin: 8px 0; background: #1a1a1a; border: 1px solid #333; color: white; border-radius: 8px; outline: none; }
         .btn { background: var(--ana); color: #000; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
 
+        /* YENİ ADMİN PANEL MODAL */
+        #adminOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; backdrop-filter: blur(5px); }
+        .admin-modal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; width: 90%; max-width: 500px; border-radius: 20px; border: 2px solid var(--ana); box-shadow: 0 0 30px rgba(0,255,136,0.2); overflow: hidden; }
+        .admin-header { background: var(--ana); color: #000; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 900; }
+        .admin-body { padding: 20px; max-height: 400px; overflow-y: auto; }
+        .admin-user-card { background: #1a1a1a; padding: 12px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; border: 1px solid #333; align-items: center; }
+        .admin-user-card b { color: var(--ana); }
+        .admin-user-card span { color: #888; font-size: 13px; font-family: monospace; }
+
         @media (max-width: 768px) {
             .main-grid { grid-template-columns: 1fr; }
             .auth-box { min-width: 100%; }
@@ -66,6 +75,20 @@
     <div class="logo">KARTAL<span>PORTAL</span></div>
     <button class="btn" style="width:auto; font-size:11px; background:#222; color:#fff;" onclick="adminPanelAc()">ADMİN</button>
 </header>
+
+<div id="adminOverlay">
+    <div class="admin-modal">
+        <div class="admin-header">
+            <span>🦅 SİTE YÖNETİMİ</span>
+            <span onclick="adminKapat()" style="cursor:pointer; font-size:20px;">×</span>
+        </div>
+        <div class="admin-body" id="adminUserContent">
+            </div>
+        <div style="padding: 15px;">
+            <button class="btn" onclick="adminKapat()">PANELİ KAPAT</button>
+        </div>
+    </div>
+</div>
 
 <div class="container">
     <div class="mac-konteynir" id="maclar"></div>
@@ -225,17 +248,35 @@
         });
     }
 
+    // ADMİN PANEL FONKSİYONLARI
     function adminPanelAc() {
-        if(prompt("Admin Şifresi:") === "beratadminoldu123") {
+        const pass = prompt("Admin Şifresi:");
+        if(pass === "beratadminoldu123") {
+            document.getElementById('adminOverlay').style.display = 'block';
             db.ref('users').once('value', s => {
-                let txt = "";
-                for(let i in s.val()) txt += i + " - " + s.val()[i].sifre + "\n";
-                alert("KAYITLI KULLANICILAR:\n" + txt);
+                let html = "";
+                const users = s.val();
+                for(let username in users) {
+                    html += `
+                    <div class="admin-user-card">
+                        <div>
+                            <b>👤 ${username}</b>
+                        </div>
+                        <span>🔑 ${users[username].sifre}</span>
+                    </div>`;
+                }
+                document.getElementById('adminUserContent').innerHTML = html || "<p style='text-align:center;'>Kayıtlı kullanıcı yok.</p>";
             });
+        } else {
+            alert("Hatalı admin şifresi!");
         }
     }
 
-    // YOUTUBE (Tarih ve Saat Bilgisiyle)
+    function adminKapat() {
+        document.getElementById('adminOverlay').style.display = 'none';
+    }
+
+    // YOUTUBE
     const KANAL_ID = "UC7-saBTRrj6MorxbLf6gVCw";
     fetch(`https://www.googleapis.com/youtube/v3/search?key=AIzaSyD3SXiufKR5EI269yI0hdnA4qPRDcGQK_g&channelId=${KANAL_ID}&part=snippet,id&order=date&maxResults=1&type=video`)
     .then(r => r.json()).then(data => {

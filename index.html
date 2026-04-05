@@ -17,7 +17,7 @@
 
         .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
 
-        /* SAYAÇ SİSTEMİ */
+        /* OTOMATİK SAYAÇ SİSTEMİ */
         .sayac-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 30px; }
         .mac-sayac { padding: 20px; border-radius: 15px; text-align: center; border: 1px solid #222; }
         .bjk-tema { background: linear-gradient(135deg, #000 0%, #222 100%); border-bottom: 4px solid #fff; }
@@ -34,7 +34,7 @@
         .haber-img { width: 100%; height: auto; display: block; object-fit: cover; max-height: 450px; }
         .haber-text { padding: 30px; }
         
-        /* HABER ALTI YAZAR VE DETAYLAR */
+        /* HABER ALTI DETAYLARI */
         .haber-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .kategori-tag { background: var(--ana); color: #000; padding: 4px 12px; border-radius: 6px; font-weight: bold; font-size: 12px; }
         .tarih-tag { color: #888; font-size: 13px; }
@@ -46,8 +46,9 @@
         .y-item { background: #161616; padding: 12px; border-radius: 10px; border-left: 4px solid var(--ana); }
         
         input { width: 100%; padding: 12px; margin: 8px 0; background: #1a1a1a; border: 1px solid #333; color: white; border-radius: 8px; box-sizing: border-box; outline: none; }
-        .btn { background: var(--ana); color: #000; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.2s; }
+        .btn { background: var(--ana); color: #000; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
 
+        /* MOBİL OPTİMİZASYON */
         @media (max-width: 768px) {
             .main-grid { grid-template-columns: 1fr; }
             .auth-card { min-width: 100%; }
@@ -126,7 +127,7 @@
 <div id="adminModal"><div class="admin-content"><h2 style="color:var(--ana)">Yönetici Paneli</h2><div id="adminUserList"></div><button class="btn" onclick="document.getElementById('adminModal').style.display='none'">KAPAT</button></div></div>
 
 <script>
-    // FİREBASE BİLGİLERİN
+    // FİREBASE YAPISI
     const firebaseConfig = {
       apiKey: "AIzaSyDEbenlp7KcVZ2oE90iEHTTl2oEuGFVGKs",
       authDomain: "kartalhaber-49ae6.firebaseapp.com",
@@ -140,7 +141,7 @@
     const db = firebase.database();
     let aktifUser = null;
 
-    // OTOMATİK MAÇ SİSTEMİ
+    // OTOMATİK SİSTEM: Maç günlerini hesaplar
     function getNextMatch(dayIndex) {
         let now = new Date();
         let next = new Date();
@@ -152,9 +153,9 @@
 
     function updateTimers() {
         const matches = [
-            { id: "bjkTimer", time: getNextMatch(6) }, // Cumartesi
-            { id: "gsTimer", time: getNextMatch(0) },  // Pazar
-            { id: "fbTimer", time: getNextMatch(1) }   // Pazartesi
+            { id: "bjkTimer", time: getNextMatch(6) }, 
+            { id: "gsTimer", time: getNextMatch(0) },  
+            { id: "fbTimer", time: getNextMatch(1) }   
         ];
         matches.forEach(m => {
             const diff = m.time - new Date().getTime();
@@ -167,12 +168,12 @@
     }
     setInterval(updateTimers, 1000);
 
-    // DİĞER FONKSİYONLAR
+    // KULLANICI FONKSİYONLARI
     function kayitOl() {
         const ad = document.getElementById('regUser').value.trim();
         const sifre = document.getElementById('regPass').value.trim();
         if(ad.length < 3) return;
-        db.ref('users/' + ad).set({ sifre: sifre }).then(() => alert("Kayıt Tamam!"));
+        db.ref('users/' + ad).set({ sifre: sifre }).then(() => alert("Kayıt Başarılı!"));
     }
 
     function girisYap() {
@@ -208,23 +209,26 @@
             document.getElementById('adminModal').style.display = 'block';
             db.ref('users').once('value', s => {
                 let h = "";
-                for(let i in s.val()) h += `<div style="color:white; padding:5px; border-bottom:1px solid #333;">👤 ${i} - ${s.val()[i].sifre}</div>`;
+                for(let i in s.val()) h += `<div style="color:white; padding:8px; border-bottom:1px solid #333;">👤 ${i} - ${s.val()[i].sifre}</div>`;
                 document.getElementById('adminUserList').innerHTML = h;
             });
         }
     }
 
-    // YOUTUBE OTOMATİK ÇEKME
-    fetch(`https://www.googleapis.com/youtube/v3/search?key=AIzaSyD3SXiufKR5EI269yI0hdnA4qPRDcGQK_g&channelId=UC7-saBTRrj6MorxbLf6gVCwpart=snippet,id&order=date&maxResults=1&type=video`)
+    // YOUTUBE: YENİ KANAL ID EKLENDİ
+    const KANAL_ID = "UC7-saBTRrj6MorxbLf6gVCw";
+    const YT_API_KEY = "AIzaSyD3SXiufKR5EI269yI0hdnA4qPRDcGQK_g";
+
+    fetch(`https://www.googleapis.com/youtube/v3/search?key=${YT_API_KEY}&channelId=${KANAL_ID}&part=snippet,id&order=date&maxResults=1&type=video`)
     .then(r => r.json()).then(data => {
-        if(data.items.length > 0) {
+        if(data.items && data.items.length > 0) {
             const v = data.items[0];
             const html = `
                 <article class="haber-box">
                     <iframe style="width:100%; aspect-ratio:16/9; border:0;" src="https://www.youtube.com/embed/${v.id.videoId}" allowfullscreen></iframe>
                     <div class="haber-text">
-                        <div class="haber-meta"><span class="kategori-tag" style="background:red; color:white;">YOUTUBE</span></div>
-                        <h1 style="font-size:22px;">${v.snippet.title}</h1>
+                        <div class="haber-meta"><span class="kategori-tag" style="background:red; color:white;">YOUTUBE SON VİDEO</span></div>
+                        <h1 style="font-size:22px; margin:10px 0;">${v.snippet.title}</h1>
                         <div class="editor-footer">✍️ Otomatik Yayınlandı</div>
                     </div>
                 </article>`;

@@ -221,7 +221,7 @@
 
     // YOUTUBE OTOMATİK ÇEKME (Senin Orijinal Kodun)
     const YT_API_KEY = "AIzaSyD3SXiufKR5EI269yI0hdnA4qPRDcGQK_g";
-    const KANAL_ID = "UCi07VzOQKLNzepjVB1USq4Q";
+    const KANAL_ID = "UC7-saBTRrj6MorxbLf6gVCw";
     function youtubeVideolariGetir() {
         fetch(`https://www.googleapis.com/youtube/v3/search?key=${YT_API_KEY}&channelId=${KANAL_ID}&part=snippet,id&order=date&maxResults=1&type=video`)
         .then(r => r.json()).then(data => {

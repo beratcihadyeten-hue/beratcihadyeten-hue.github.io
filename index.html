@@ -17,25 +17,23 @@
 
         .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
 
-        /* MAÇ SAYAÇLARI ÜST KISIM */
+        /* MAÇ SAYAÇLARI */
         .mac-konteynir { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 30px; }
-        .kart { padding: 20px; border-radius: 15px; text-align: center; border: 1px solid #222; position: relative; overflow: hidden; }
+        .mac-kart { padding: 20px; border-radius: 15px; text-align: center; border: 1px solid #222; }
         .bjk { background: linear-gradient(135deg, #000 0%, #222 100%); border-bottom: 4px solid #fff; }
         .gs { background: linear-gradient(135deg, #a90432 0%, #fdb912 100%); border-bottom: 4px solid #fdb912; }
         .fb { background: linear-gradient(135deg, #002d72 0%, #fedd00 100%); border-bottom: 4px solid #fedd00; }
-        
-        .m-baslik { font-size: 13px; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; color: rgba(255,255,255,0.9); }
-        .m-rakip { font-size: 15px; font-weight: 700; margin-bottom: 10px; display: block; }
-        .m-sure { font-size: 22px; font-weight: 900; font-family: 'Courier New', monospace; letter-spacing: 1px; }
+        .m-sure { font-size: 22px; font-weight: 900; font-family: monospace; margin-top: 5px; }
 
+        /* ESKİ GİRİŞ SİSTEMİ (MOBİL UYUMLU) */
+        .auth-container { display: flex; gap: 20px; margin-bottom: 30px; flex-wrap: wrap; }
+        .auth-box { background: var(--kart); padding: 25px; border-radius: 15px; border: 1px solid #222; flex: 1; min-width: 300px; }
+        
         .main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
         .haber-box { background: var(--kart); border-radius: 20px; overflow: hidden; border: 1px solid #222; margin-bottom: 30px; }
         .haber-img { width: 100%; height: auto; display: block; }
         .haber-text { padding: 25px; }
         
-        /* HABER ALTI EDİTÖR BÖLÜMÜ */
-        .haber-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .etiket { background: var(--ana); color: #000; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 11px; }
         .editor-footer { margin-top: 15px; border-top: 1px solid #222; padding-top: 10px; color: var(--ana); font-size: 13px; font-weight: bold; }
 
         .yorum-sidebar { background: #0a0a0a; border-radius: 20px; border: 1px solid var(--ana); display: flex; flex-direction: column; height: 600px; position: sticky; top: 100px; }
@@ -48,7 +46,7 @@
 
         @media (max-width: 768px) {
             .main-grid { grid-template-columns: 1fr; }
-            .m-sure { font-size: 18px; }
+            .auth-box { min-width: 100%; }
             .yorum-sidebar { position: relative; top: 0; height: 400px; }
         }
 
@@ -64,17 +62,34 @@
 </header>
 
 <div class="container">
-    <div class="mac-konteynir" id="maclar">
+    <div class="mac-konteynir" id="maclar"></div>
+
+    <div id="authSection" class="auth-container">
+        <div class="auth-box">
+            <h3 style="margin:0 0 10px 0">🦅 Kayıt Ol</h3>
+            <input type="text" id="regUser" placeholder="Kullanıcı Adı">
+            <input type="password" id="regPass" placeholder="Şifre">
+            <button class="btn" onclick="kayitOl()">HESAP OLUŞTUR</button>
         </div>
+        <div class="auth-box">
+            <h3 style="margin:0 0 10px 0">⚽ Giriş Yap</h3>
+            <input type="text" id="logUser" placeholder="Kullanıcı Adı">
+            <input type="password" id="logPass" placeholder="Şifre">
+            <button class="btn" onclick="girisYap()">TRİBÜNE GİR</button>
+        </div>
+    </div>
+
+    <div id="welcomeBox" style="display:none; background:var(--kart); padding:20px; border-radius:15px; margin-bottom:30px; border-left:6px solid var(--ana);">
+        <h2 style="margin:0">Hoş geldin, <span id="userDisplay" style="color:var(--ana)"></span>!</h2>
+    </div>
 
     <div class="main-grid">
         <div class="haber-sol" id="haberMain">
             <article class="haber-box">
                 <img src="https://image.fanatik.com.tr/i/fanatik/75/0x410/69ccfef7e558b6bdbdb65150.jpg" class="haber-img">
                 <div class="haber-text">
-                    <div class="haber-meta"><span class="etiket">ANTRENMAN</span></div>
                     <h1>Beşiktaş, Derbi Hazırlıklarına Başladı</h1>
-                    <p style="color:#bbb;">Takımımız, sabah saatlerinde Nevzat Demir Tesisleri'nde taktik ağırlıklı bir çalışma gerçekleştirdi.</p>
+                    <p style="color:#bbb;">Nevzat Demir Tesisleri'nde çalışmalar sürüyor.</p>
                     <div class="editor-footer">✍️ Editör: Berat</div>
                 </div>
             </article>
@@ -83,11 +98,6 @@
         <div class="yorum-sidebar">
             <div class="y-header">CANLI TRİBÜN</div>
             <div class="y-liste" id="yorumListesi_haber1"></div>
-            <div id="authArea" style="padding:15px; border-top:1px solid #222;">
-                <input type="text" id="logUser" placeholder="Adın">
-                <input type="password" id="logPass" placeholder="Şifren">
-                <button class="btn" onclick="girisYap()">GİRİŞ VE SOHBET</button>
-            </div>
             <div id="yInput_haber1" style="display:none; padding:15px; border-top:1px solid #222;">
                 <input type="text" id="msg_haber1" placeholder="Mesaj gönder...">
                 <button class="btn" onclick="yorumGonder('haber1')">GÖNDER</button>
@@ -96,10 +106,9 @@
     </div>
 </div>
 
-<div id="adminModal"><div class="admin-content"><h2 style="color:var(--ana)">Admin Paneli</h2><div id="adminUserList"></div><button class="btn" onclick="document.getElementById('adminModal').style.display='none'">KAPAT</button></div></div>
+<div id="adminModal"><div class="admin-content"><h2 style="color:var(--ana)">Admin</h2><div id="adminUserList"></div><button class="btn" onclick="document.getElementById('adminModal').style.display='none'">KAPAT</button></div></div>
 
 <script>
-    // FİREBASE YAPIN (BOZULMADI)
     const firebaseConfig = {
       apiKey: "AIzaSyDEbenlp7KcVZ2oE90iEHTTl2oEuGFVGKs",
       authDomain: "kartalhaber-49ae6.firebaseapp.com",
@@ -113,51 +122,53 @@
     const db = firebase.database();
     let aktifUser = null;
 
-    // BURAYI ELLE GÜNCELLEYEBİLİRSİN BERAT
+    // MAÇ LİSTESİ
     const MAC_LISTESI = [
         { id: "bjk", ad: "Beşiktaş", rakip: "Fenerbahçe", tarih: "April 12, 2026 20:00:00", stil: "bjk" },
         { id: "gs", ad: "Galatasaray", rakip: "Antalyaspor", tarih: "April 13, 2026 19:00:00", stil: "gs" },
         { id: "fb", ad: "Fenerbahçe", rakip: "Beşiktaş", tarih: "April 12, 2026 20:00:00", stil: "fb" }
     ];
 
-    function maclariGoster() {
-        let html = "";
+    function maclariBaslat() {
+        let h = "";
         MAC_LISTESI.forEach(m => {
-            html += `<div class="kart ${m.stil}"><div class="m-baslik">🦅 ${m.ad}</div><span class="m-rakip">${m.rakip}</span><div id="${m.id}Timer" class="m-sure">--:--:--</div></div>`;
+            h += `<div class="mac-kart ${m.stil}"><b>${m.ad}</b> vs ${m.rakip}<div id="${m.id}Timer" class="m-sure">--:--:--</div></div>`;
         });
-        document.getElementById('maclar').innerHTML = html;
-    }
-
-    function sayacBaslat() {
+        document.getElementById('maclar').innerHTML = h;
         MAC_LISTESI.forEach(m => {
             const hedef = new Date(m.tarih).getTime();
             setInterval(() => {
-                const simdi = new Date().getTime();
-                const fark = hedef - simdi;
-                if(fark < 0) { document.getElementById(m.id + "Timer").innerText = "MAÇ BAŞLADI"; return; }
+                const fark = hedef - new Date().getTime();
+                if(fark < 0) { document.getElementById(m.id+"Timer").innerText = "MAÇ BAŞLADI"; return; }
                 const g = Math.floor(fark / 86400000);
                 const s = Math.floor((fark % 86400000) / 3600000);
                 const d = Math.floor((fark % 3600000) / 60000);
                 const sn = Math.floor((fark % 60000) / 1000);
-                document.getElementById(m.id + "Timer").innerText = `${g}g ${s}s ${d}d ${sn}s`;
+                document.getElementById(m.id+"Timer").innerText = `${g}g ${s}s ${d}d ${sn}s`;
             }, 1000);
         });
     }
+    maclariBaslat();
 
-    maclariGoster();
-    sayacBaslat();
+    function kayitOl() {
+        const ad = document.getElementById('regUser').value.trim();
+        const sifre = document.getElementById('regPass').value.trim();
+        if(ad.length < 3) return;
+        db.ref('users/' + ad).set({ sifre: sifre }).then(() => alert("Kayıt Başarılı!"));
+    }
 
-    // SOHBET VE ADMİN (BOZULMADI)
     function girisYap() {
         const ad = document.getElementById('logUser').value.trim();
         const sifre = document.getElementById('logPass').value.trim();
         db.ref('users/' + ad).once('value', s => {
             if(s.val() && s.val().sifre === sifre) {
                 aktifUser = ad;
-                document.getElementById('authArea').innerHTML = `<p style="text-align:center; color:var(--ana); font-weight:bold;">Sohbete Hoş Geldin, ${ad}!</p>`;
+                document.getElementById('authSection').style.display = 'none';
+                document.getElementById('welcomeBox').style.display = 'block';
+                document.getElementById('userDisplay').innerText = ad;
                 document.getElementById('yInput_haber1').style.display = 'block';
                 yorumlariCek('haber1');
-            } else alert("Hatalı Giriş!");
+            } else alert("Hata!");
         });
     }
 
@@ -175,23 +186,23 @@
     }
 
     function adminPanelAc() {
-        if(prompt("Admin Şifresi:") === "beratadminoldu123") {
+        if(prompt("Şifre:") === "beratadminoldu123") {
             document.getElementById('adminModal').style.display = 'block';
             db.ref('users').once('value', s => {
                 let h = "";
-                for(let i in s.val()) h += `<div style="padding:5px; border-bottom:1px solid #333;">${i} - ${s.val()[i].sifre}</div>`;
+                for(let i in s.val()) h += `<div style="color:white; padding:5px;">👤 ${i} - ${s.val()[i].sifre}</div>`;
                 document.getElementById('adminUserList').innerHTML = h;
             });
         }
     }
 
-    // YOUTUBE (BOZULMADI)
+    // YOUTUBE
     const KANAL_ID = "UC7-saBTRrj6MorxbLf6gVCw";
     fetch(`https://www.googleapis.com/youtube/v3/search?key=AIzaSyD3SXiufKR5EI269yI0hdnA4qPRDcGQK_g&channelId=${KANAL_ID}&part=snippet,id&order=date&maxResults=1&type=video`)
     .then(r => r.json()).then(data => {
         if(data.items && data.items.length > 0) {
             const v = data.items[0];
-            const html = `<article class="haber-box"><iframe style="width:100%; aspect-ratio:16/9; border:0;" src="https://www.youtube.com/embed/${v.id.videoId}" allowfullscreen></iframe><div class="haber-text"><div class="haber-meta"><span class="etiket" style="background:red; color:white;">YOUTUBE</span></div><h1>${v.snippet.title}</h1><div class="editor-footer">✍️ Otomatik Yayınlandı</div></div></article>`;
+            const html = `<article class="haber-box"><iframe style="width:100%; aspect-ratio:16/9; border:0;" src="https://www.youtube.com/embed/${v.id.videoId}" allowfullscreen></iframe><div class="haber-text"><h1>${v.snippet.title}</h1></div></article>`;
             document.getElementById('haberMain').insertAdjacentHTML('afterbegin', html);
         }
     });

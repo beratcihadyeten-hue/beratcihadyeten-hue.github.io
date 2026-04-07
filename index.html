@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KartalPortal | Pro Edition</title>
+    <title>KartalPortal | Takım Oyunu</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
@@ -44,32 +44,35 @@
         .haber-text { padding: 25px; }
         .yt-tarih { color: #888; font-size: 12px; font-weight: bold; margin-bottom: 8px; display: block; }
 
-        /* CHAT DÜZELTME */
+        /* CANLI TRİBÜN */
         .yorum-sidebar { background: #0a0a0a; border-radius: 20px; border: 1px solid var(--ana); display: flex; flex-direction: column; height: 600px; position: sticky; top: 100px; }
         .y-header { background: var(--ana); color: #000; padding: 15px; font-weight: bold; text-align: center; border-radius: 18px 18px 0 0; }
         .y-liste { flex-grow: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .y-item { background: #161616; padding: 10px; border-radius: 8px; border-left: 3px solid var(--ana); word-wrap: break-word; }
+        .y-item { background: #161616; padding: 10px; border-radius: 8px; border-left: 3px solid var(--ana); word-break: break-word; }
+        .chat-input-area { padding: 15px; border-top: 1px solid #222; }
         
-        .chat-input-area { padding: 15px; border-top: 1px solid #222; background: #0a0a0a; border-radius: 0 0 20px 20px; }
         input { width: 100%; padding: 12px; margin: 8px 0; background: #1a1a1a; border: 1px solid #333; color: white; border-radius: 8px; outline: none; box-sizing: border-box; }
         .btn { background: var(--ana); color: #000; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
         .btn:hover { opacity: 0.8; transform: scale(0.98); }
 
-        /* MODALLAR */
-        #adminOverlay, #gameOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 2000; backdrop-filter: blur(15px); }
+        /* OYUN MODALI */
+        #gameOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 2000; backdrop-filter: blur(15px); }
         .modal-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #000; width: 95%; max-width: 800px; border-radius: 25px; border: 2px solid var(--ana); overflow: hidden; box-shadow: 0 0 50px rgba(0, 255, 136, 0.3); }
         .modal-header { background: var(--ana); color: #000; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; font-weight: 900; }
         
-        /* OYUN TASARIMI */
         #gameCanvas { background: linear-gradient(to bottom, #050505, #111); display: block; margin: 0 auto; border-radius: 15px; border: 1px solid #222; }
-        .game-ui { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 100%; display: none; }
-        .game-ui h2 { font-size: 40px; color: #ff3333; text-shadow: 0 0 20px rgba(255,0,0,0.5); }
-        .score-row { display: flex; justify-content: space-between; padding: 10px; background: #111; margin-bottom: 5px; border-radius: 8px; border-left: 3px solid var(--ana); }
+        
+        /* TAKIM SEÇİM EKRANI */
+        .team-select { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; gap: 20px; }
+        .team-btns { display: flex; gap: 15px; }
+        .team-card { padding: 20px; border-radius: 15px; cursor: pointer; text-align: center; border: 2px solid transparent; transition: 0.3s; min-width: 100px; background: #111; }
+        .team-card:hover { border-color: var(--ana); transform: scale(1.05); }
 
-        @media (max-width: 768px) {
-            .main-grid { grid-template-columns: 1fr; }
-            .yorum-sidebar { position: relative; top: 0; height: 400px; }
-        }
+        .game-ui { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; width: 100%; background: rgba(0,0,0,0.8); padding: 20px; border-radius: 20px; display: none; }
+        
+        #adminOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.98); z-index: 2000; }
+
+        @media (max-width: 768px) { .main-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -77,38 +80,41 @@
 <header>
     <div class="logo">KARTAL<span>PORTAL</span></div>
     <div style="display: flex; gap: 10px;">
-        <button class="btn" style="width:auto; font-size:11px; background:#ffcc00; color:#000;" onclick="oyunuAc()">🦅 KARTAL UÇUŞU</button>
+        <button class="btn" style="width:auto; font-size:11px; background:#ffcc00; color:#000;" onclick="oyunuAc()">🎮 TAKIM OYUNU</button>
         <button class="btn" style="width:auto; font-size:11px; background:#222; color:#fff;" onclick="adminPanelAc()">ADMİN</button>
     </div>
 </header>
 
 <div id="adminOverlay">
     <div class="modal-content" style="max-width: 500px;">
-        <div class="modal-header">
-            <span>🦅 SİTE YÖNETİMİ</span>
-            <span onclick="modalKapat('adminOverlay')" style="cursor:pointer; font-size:25px;">×</span>
-        </div>
+        <div class="modal-header"><span>🦅 SİTE YÖNETİMİ</span><span onclick="modalKapat('adminOverlay')" style="cursor:pointer; font-size:25px;">×</span></div>
         <div id="adminUserContent" style="padding:20px; max-height:400px; overflow-y:auto;"></div>
     </div>
 </div>
 
 <div id="gameOverlay">
     <div class="modal-content">
-        <div class="modal-header">
-            <span>🦅 ULTRA HARD: KARTAL UÇUŞU</span>
-            <span onclick="modalKapat('gameOverlay')" style="cursor:pointer; font-size:25px;">×</span>
-        </div>
+        <div class="modal-header"><span>🏟️ TAKIM OYUNU</span><span onclick="modalKapat('gameOverlay')" style="cursor:pointer; font-size:25px;">×</span></div>
         <div style="padding: 20px; text-align: center; position: relative;">
-            <canvas id="gameCanvas" width="700" height="200"></canvas>
             
-            <div id="gameOverUI" class="game-ui">
-                <h2>YANDIN!</h2>
-                <p id="finalScore" style="font-size:20px;">Skor: 0</p>
-                <button class="btn" style="width:200px;" onclick="baslatUltraDino()">TEKRAR DENE</button>
+            <div id="teamSelector" class="team-select">
+                <h2 style="color:var(--ana)">TAKIMINI SEÇ VE BAŞLA!</h2>
+                <div class="team-btns">
+                    <div class="team-card bjk-tema" onclick="baslatTakimOyunu('🦅')"><h1>🦅</h1>BJK</div>
+                    <div class="team-card gs-tema" onclick="baslatTakimOyunu('🦁')"><h1>🦁</h1>GS</div>
+                    <div class="team-card fb-tema" onclick="baslatTakimOyunu('🟡')"><h1>🟡</h1>FB</div>
+                </div>
             </div>
 
-            <div style="margin-top: 10px; font-size: 14px; color: var(--ana);">SPACE veya TIKLA zıpla! (Hız Sürekli Artar!)</div>
-            <div id="scoreList" style="margin-top:20px; text-align:left; max-height:150px; overflow-y:auto;"></div>
+            <canvas id="gameCanvas" width="700" height="200" style="display:none;"></canvas>
+
+            <div id="gameOverUI" class="game-ui">
+                <h2 style="color:#ff3333;">YANDIN!</h2>
+                <p id="finalScore" style="font-size:20px;">Skor: 0</p>
+                <button class="btn" style="width:200px;" onclick="takimSecimineDon()">TEKRAR OYNA</button>
+            </div>
+
+            <div id="scoreList" style="margin-top:20px; text-align:left;"></div>
         </div>
     </div>
 </div>
@@ -129,18 +135,8 @@
     </div>
 
     <div id="authSection" class="auth-container">
-        <div class="auth-box">
-            <h3>🦅 Kayıt Ol</h3>
-            <input type="text" id="regUser" placeholder="Kullanıcı Adı">
-            <input type="password" id="regPass" placeholder="Şifre">
-            <button class="btn" onclick="kayitOl()">HESAP OLUŞTUR</button>
-        </div>
-        <div class="auth-box">
-            <h3>⚽ Giriş Yap</h3>
-            <input type="text" id="logUser" placeholder="Kullanıcı Adı">
-            <input type="password" id="logPass" placeholder="Şifre">
-            <button class="btn" onclick="girisYap()">TRİBÜNE GİR</button>
-        </div>
+        <div class="auth-box"><h3>🦅 Kayıt Ol</h3><input type="text" id="regUser" placeholder="Kullanıcı Adı"><input type="password" id="regPass" placeholder="Şifre"><button class="btn" onclick="kayitOl()">HESAP OLUŞTUR</button></div>
+        <div class="auth-box"><h3>⚽ Giriş Yap</h3><input type="text" id="logUser" placeholder="Kullanıcı Adı"><input type="password" id="logPass" placeholder="Şifre"><button class="btn" onclick="girisYap()">TRİBÜNE GİR</button></div>
     </div>
 
     <div id="welcomeBox" style="display:none; background:var(--kart); padding:20px; border-radius:15px; margin-bottom:30px; border-left:6px solid var(--ana);">
@@ -152,9 +148,9 @@
             <article class="haber-box">
                 <img src="https://image.fanatik.com.tr/i/fanatik/75/0x410/69ccfef7e558b6bdbdb65150.jpg" style="width:100%">
                 <div class="haber-text">
-                    <span class="yt-tarih">📅 5 Nisan 2026</span>
+                    <span class="yt-tarih">📅 7 Nisan 2026</span>
                     <h1>Beşiktaş, Derbi Hazırlıklarını Sürdürüyor</h1>
-                    <p style="color:#bbb;">Nevzat Demir Tesisleri'nde antrenmanlar devam ediyor. Kartal derbiye odaklandı!</p>
+                    <p style="color:#bbb;">Nevzat Demir Tesisleri'nde gerçekleştirilen antrenmanda taktik varyasyonlar üzerinde duruldu. Teknik ekip, futbolcuların hırsından oldukça memnun.</p>
                     <div style="margin-top:15px; border-top:1px solid #222; padding-top:10px; color:var(--ana); font-size:13px; font-weight:bold;">✍️ Editör: Berat</div>
                 </div>
             </article>
@@ -164,7 +160,7 @@
             <div class="y-header">CANLI TRİBÜN</div>
             <div class="y-liste" id="yorumListesi_haber1"></div>
             <div id="yInput_haber1" style="display:none;" class="chat-input-area">
-                <input type="text" id="msg_haber1" placeholder="Mesajını buraya yaz...">
+                <input type="text" id="msg_haber1" placeholder="Mesaj gönder...">
                 <button class="btn" onclick="yorumGonder('haber1')">GÖNDER</button>
             </div>
         </div>
@@ -185,7 +181,7 @@
     const db = firebase.database();
     let aktifUser = null;
 
-    // MAC SAYACI
+    // MAÇ SAYAÇLARI
     const MAC_LISTESI = [
         { id: "bjk", ad: "Beşiktaş", rakip: "Antalya", tarih: "April 10, 2026 20:00:00", stil: "bjk-tema" },
         { id: "gs", ad: "Galatasaray", rakip: "Göztepe", tarih: "April 8, 2026 20:00:00", stil: "gs-tema" },
@@ -194,9 +190,7 @@
 
     function maclariGuncelle() {
         let h = "";
-        MAC_LISTESI.forEach(m => {
-            h += `<div class="mac-kart ${m.stil}"><b>${m.ad}</b> vs ${m.rakip}<div id="${m.id}Timer" class="m-sure">--:--:--</div></div>`;
-        });
+        MAC_LISTESI.forEach(m => { h += `<div class="mac-kart ${m.stil}"><b>${m.ad}</b> vs ${m.rakip}<div id="${m.id}Timer" class="m-sure">--:--:--</div></div>`; });
         document.getElementById('maclar').innerHTML = h;
         MAC_LISTESI.forEach(m => {
             setInterval(() => {
@@ -210,134 +204,65 @@
     maclariGuncelle();
 
     // AUTH
-    function kayitOl() {
-        const ad = document.getElementById('regUser').value.trim(), sifre = document.getElementById('regPass').value.trim();
-        if(ad.length < 3) return;
-        db.ref('users/' + ad).set({ sifre: sifre }).then(() => alert("Kayıt Başarılı!"));
-    }
+    function kayitOl() { const ad=document.getElementById('regUser').value, sifre=document.getElementById('regPass').value; if(ad.length>2) db.ref('users/'+ad).set({sifre:sifre}).then(()=>alert("Başarılı!")); }
+    function girisYap() { const ad=document.getElementById('logUser').value, sifre=document.getElementById('logPass').value; db.ref('users/'+ad).once('value', s=>{ if(s.val()&&s.val().sifre===sifre){ aktifUser=ad; document.getElementById('authSection').style.display='none'; document.getElementById('welcomeBox').style.display='block'; document.getElementById('userDisplay').innerText=ad; document.getElementById('yInput_haber1').style.display='block'; yorumlariCek('haber1'); } else alert("Hata!"); }); }
+    function yorumGonder(hId) { const i=document.getElementById('msg_'+hId), m=i.value.trim(); if(m&&aktifUser){ db.ref('yorumlar/'+hId).push({isim:aktifUser, mesaj:m}); i.value=""; } }
+    function yorumlariCek(hId) { db.ref('yorumlar/'+hId).on('value', s=>{ let h=""; if(s.val()) Object.values(s.val()).forEach(y=>h+=`<div class="y-item"><b>${y.isim}:</b> ${y.mesaj}</div>`); document.getElementById('yorumListesi_'+hId).innerHTML=h; }); }
+    function modalKapat(id) { document.getElementById(id).style.display='none'; }
+    function adminPanelAc() { if(prompt("Admin Şifresi:")==="beratadminoldu123"){ document.getElementById('adminOverlay').style.display='block'; db.ref('users').once('value', s=>{ let h=""; for(let u in s.val()) h+=`<div class="y-item">👤 ${u} - 🔑 ${s.val()[u].sifre}</div>`; document.getElementById('adminUserContent').innerHTML=h; }); } }
 
-    function girisYap() {
-        const ad = document.getElementById('logUser').value.trim(), sifre = document.getElementById('logPass').value.trim();
-        db.ref('users/' + ad).once('value', s => {
-            if(s.val() && s.val().sifre === sifre) {
-                aktifUser = ad;
-                document.getElementById('authSection').style.display = 'none';
-                document.getElementById('welcomeBox').style.display = 'block';
-                document.getElementById('userDisplay').innerText = ad;
-                document.getElementById('yInput_haber1').style.display = 'block';
-                yorumlariCek('haber1');
-            } else alert("Hata!");
-        });
-    }
+    // TAKIM OYUNU SİSTEMİ
+    let gameReq, currentLogo = "🦅";
+    function oyunuAc() { if(!aktifUser){alert("Giriş yapmalısın!"); return;} document.getElementById('gameOverlay').style.display='block'; takimSecimineDon(); skorlariYukle(); }
+    function takimSecimineDon() { document.getElementById('teamSelector').style.display='flex'; document.getElementById('gameCanvas').style.display='none'; document.getElementById('gameOverUI').style.display='none'; }
+    function skorlariYukle() { db.ref('oyun_skorlari').orderByValue().limitToLast(5).on('value', s=>{ let h="<h4 style='color:var(--ana)'>SKOR TABLOSU</h4>"; let list=[]; s.forEach(c=>list.push({n:c.key, s:c.val()})); list.reverse().forEach(u=>h+=`<div class='mac-kart' style='padding:5px; margin-bottom:5px; font-size:14px;'>${u.n}: ${u.s}</div>`); document.getElementById('scoreList').innerHTML=h; }); }
 
-    // CHAT TAMİRİ (Input temizleme ve odaklanma eklendi)
-    function yorumGonder(hId) {
-        const input = document.getElementById('msg_' + hId);
-        const m = input.value.trim();
-        if(m && aktifUser) { 
-            db.ref('yorumlar/' + hId).push({ isim: aktifUser, mesaj: m }); 
-            input.value = ""; 
-            input.focus();
-        }
-    }
-
-    function yorumlariCek(hId) {
-        db.ref('yorumlar/' + hId).on('value', s => {
-            let h = "";
-            if(s.val()) Object.values(s.val()).forEach(y => h += `<div class="y-item"><b>${y.isim}:</b> ${y.mesaj}</div>`);
-            const box = document.getElementById('yorumListesi_' + hId);
-            box.innerHTML = h;
-            box.scrollTop = box.scrollHeight;
-        });
-    }
-
-    function modalKapat(id) { document.getElementById(id).style.display = 'none'; }
-    function adminPanelAc() {
-        if(prompt("Admin Şifresi:") === "beratadminoldu123") {
-            document.getElementById('adminOverlay').style.display = 'block';
-            db.ref('users').once('value', s => {
-                let html = "";
-                for(let u in s.val()) html += `<div class="score-row"><span>👤 ${u}</span><b>🔑 ${s.val()[u].sifre}</b></div>`;
-                document.getElementById('adminUserContent').innerHTML = html;
-            });
-        }
-    }
-
-    // --- ULTRA ZOR OYUN MOTORU (Tekrar Oyna Eklendi) ---
-    let gameReq;
-    function oyunuAc() {
-        if(!aktifUser) { alert("Önce giriş yapmalısın!"); return; }
-        document.getElementById('gameOverlay').style.display = 'block';
-        skorlariYukle();
-        baslatUltraDino();
-    }
-
-    function skorlariYukle() {
-        db.ref('oyun_skorlari').orderByValue().limitToLast(5).on('value', s => {
-            let h = "<h4 style='color:var(--ana)'>REKORLAR</h4>";
-            let list = [];
-            s.forEach(c => list.push({n: c.key, s: c.val()}));
-            list.reverse().forEach(u => h += `<div class='score-row' style='font-size:12px;'><span>${u.n}</span><b>${u.s}</b></div>`);
-            document.getElementById('scoreList').innerHTML = h;
-        });
-    }
-
-    function baslatUltraDino() {
-        cancelAnimationFrame(gameReq);
-        document.getElementById('gameOverUI').style.display = 'none';
+    function baslatTakimOyunu(logo) {
+        currentLogo = logo;
+        document.getElementById('teamSelector').style.display='none';
+        document.getElementById('gameCanvas').style.display='block';
         const canvas = document.getElementById('gameCanvas'), ctx = canvas.getContext('2d');
-        let gameActive = true, score = 0, speed = 8; // BAŞLANGIÇ HIZI ARTTI
-        let obstacles = [];
-        let player = { x: 50, y: 150, w: 40, h: 40, dy: 0, jump: -13, gravity: 0.8, ground: 150 };
+        let gameActive=true, score=0, speed=8, obstacles=[];
+        let player = { x: 50, y: 150, w: 40, h: 40, dy: 0, jump: -14, gravity: 0.8, ground: 150 };
 
         function loop() {
             if(!gameActive) return;
-            ctx.clearRect(0,0,canvas.width, canvas.height);
+            ctx.clearRect(0,0,700,200);
+            ctx.strokeStyle="#444"; ctx.strokeRect(0, 190, 700, 1);
+            ctx.font="40px serif"; ctx.fillText(currentLogo, player.x, player.y);
+            player.dy+=player.gravity; player.y+=player.dy;
+            if(player.y>player.ground){ player.y=player.ground; player.dy=0; }
 
-            // Zemin
-            ctx.strokeStyle = "#333"; ctx.beginPath(); ctx.moveTo(0, 190); ctx.lineTo(700, 190); ctx.stroke();
+            // Engel Üretimi (İç içe girmeyi önleyen kontrol)
+            if(Math.random() < 0.02) {
+                let son = obstacles[obstacles.length-1];
+                if(!son || son.x < 450) obstacles.push({ x: 750, type: Math.random()>0.5?"🚫":"🧨" });
+            }
 
-            // Kartal
-            ctx.font = "40px serif"; ctx.fillText("🦅", player.x, player.y);
-            player.dy += player.gravity; player.y += player.dy;
-            if(player.y > player.ground) { player.y = player.ground; player.dy = 0; }
-
-            // Engeller (Sıklık ve Hız Arttı)
-            if(Math.random() < 0.03) obstacles.push({ x: 750, type: Math.random() > 0.5 ? "🦁" : "🟡" });
-            obstacles.forEach((o, i) => {
-                o.x -= speed;
-                ctx.fillText(o.type, o.x, 185);
-                if(player.x < o.x + 20 && player.x + 30 > o.x && player.y > 140) {
-                    gameActive = false;
-                    db.ref('oyun_skorlari/' + aktifUser).transaction(cs => (score > (cs || 0)) ? score : cs);
-                    document.getElementById('gameOverUI').style.display = 'block';
-                    document.getElementById('finalScore').innerText = "Skorun: " + score;
+            obstacles.forEach(o => {
+                o.x -= speed; ctx.fillText(o.type, o.x, 185);
+                if(player.x < o.x+20 && player.x+30 > o.x && player.y > 140) {
+                    gameActive=false; db.ref('oyun_skorlari/'+aktifUser).transaction(cs=>(score>(cs||0))?score:cs);
+                    document.getElementById('gameOverUI').style.display='block'; document.getElementById('finalScore').innerText="Skor: "+score;
                 }
             });
-            obstacles = obstacles.filter(o => o.x > -50);
-            score++;
-            if(score % 200 === 0) speed += 0.4; // DAHA HIZLI ZORLAŞMA
-            ctx.fillStyle = "white"; ctx.font = "16px Inter"; ctx.fillText("SKOR: " + score, 600, 30);
+            obstacles = obstacles.filter(o=>o.x > -50); score++;
+            if(score%300===0) speed+=0.5;
+            ctx.fillStyle="white"; ctx.font="16px Inter"; ctx.fillText("SKOR: "+score, 600, 30);
             gameReq = requestAnimationFrame(loop);
         }
-
-        const jumpAction = () => { if(player.y === player.ground) player.dy = player.jump; };
-        window.onkeydown = (e) => { if(e.code === "Space") jumpAction(); };
-        canvas.onclick = jumpAction;
-        loop();
+        const jump = () => { if(player.y===player.ground) player.dy=player.jump; };
+        window.onkeydown=(e)=>{ if(e.code==="Space") jump(); };
+        canvas.onclick=jump; loop();
     }
 
-    // YOUTUBE
+    // YOUTUBE (Kodun sonunda, bozulmadan duruyor)
     const KANAL_ID = "UC7-saBTRrj6MorxbLf6gVCw";
     fetch(`https://www.googleapis.com/youtube/v3/search?key=AIzaSyD3SXiufKR5EI269yI0hdnA4qPRDcGQK_g&channelId=${KANAL_ID}&part=snippet,id&order=date&maxResults=1&type=video`)
     .then(r => r.json()).then(data => {
         if(data.items && data.items.length > 0) {
             const v = data.items[0], t = new Date(v.snippet.publishedAt).toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-            document.getElementById('haberMain').insertAdjacentHTML('afterbegin', `
-                <article class="haber-box">
-                    <iframe style="width:100%; aspect-ratio:16/9; border:0;" src="https://www.youtube.com/embed/${v.id.videoId}" allowfullscreen></iframe>
-                    <div class="haber-text"><span class="yt-tarih">📺 Video Yüklendi: ${t}</span><h1>${v.snippet.title}</h1></div>
-                </article>`);
+            document.getElementById('haberMain').insertAdjacentHTML('afterbegin', `<article class="haber-box"><iframe style="width:100%; aspect-ratio:16/9; border:0;" src="https://www.youtube.com/embed/${v.id.videoId}" allowfullscreen></iframe><div class="haber-text"><span class="yt-tarih">📺 Video Yüklendi: ${t}</span><h1>${v.snippet.title}</h1></div></article>`);
         }
     });
 </script>

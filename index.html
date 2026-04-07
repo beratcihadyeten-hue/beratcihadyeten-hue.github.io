@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -25,13 +25,12 @@
         .fb-tema { background: linear-gradient(135deg, #002d72 0%, #fedd00 100%); border-bottom: 4px solid #fedd00; }
         .m-sure { font-size: 22px; font-weight: 900; font-family: monospace; margin-top: 5px; }
 
-        /* GERÇEKÇİ PUAN DURUMU */
+        /* PUAN DURUMU */
         .puan-durumu-box { background: var(--kart); border-radius: 15px; border: 1px solid #222; padding: 20px; margin-bottom: 30px; }
         .puan-tablo { width: 100%; border-collapse: collapse; text-align: left; }
         .puan-tablo th { color: var(--ana); padding: 12px; border-bottom: 2px solid #222; font-size: 13px; }
         .puan-tablo td { padding: 12px; border-bottom: 1px solid #222; font-size: 15px; }
         
-        /* Takım Vurguları */
         .row-bjk { color: #fff; font-weight: bold; border-left: 4px solid #fff; }
         .row-gs { border-left: 4px solid #fdb912; }
         .row-fb { border-left: 4px solid #002d72; }
@@ -53,18 +52,19 @@
         input { width: 100%; padding: 12px; margin: 8px 0; background: #1a1a1a; border: 1px solid #333; color: white; border-radius: 8px; outline: none; }
         .btn { background: var(--ana); color: #000; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
 
-        /* YENİ ADMİN PANEL MODAL */
-        #adminOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; backdrop-filter: blur(5px); }
-        .admin-modal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; width: 90%; max-width: 500px; border-radius: 20px; border: 2px solid var(--ana); box-shadow: 0 0 30px rgba(0,255,136,0.2); overflow: hidden; }
-        .admin-header { background: var(--ana); color: #000; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 900; }
-        .admin-body { padding: 20px; max-height: 400px; overflow-y: auto; }
-        .admin-user-card { background: #1a1a1a; padding: 12px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; border: 1px solid #333; align-items: center; }
-        .admin-user-card b { color: var(--ana); }
-        .admin-user-card span { color: #888; font-size: 13px; font-family: monospace; }
+        /* ADMİN & OYUN OVERLAY */
+        #adminOverlay, #gameOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; backdrop-filter: blur(8px); }
+        .modal-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; width: 95%; max-width: 800px; border-radius: 20px; border: 2px solid var(--ana); overflow: hidden; }
+        .modal-header { background: var(--ana); color: #000; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 900; }
+        .modal-body { padding: 20px; max-height: 500px; overflow-y: auto; }
+        
+        /* OYUN ALANI */
+        #gameCanvas { background: #fff; display: block; margin: 0 auto; border-radius: 10px; max-width: 100%; }
+        .leaderboard { margin-top: 20px; border-top: 1px solid #333; padding-top: 15px; }
+        .score-row { display: flex; justify-content: space-between; padding: 8px; background: #1a1a1a; margin-bottom: 5px; border-radius: 5px; }
 
         @media (max-width: 768px) {
             .main-grid { grid-template-columns: 1fr; }
-            .auth-box { min-width: 100%; }
             .yorum-sidebar { position: relative; top: 0; height: 400px; }
         }
     </style>
@@ -73,19 +73,36 @@
 
 <header>
     <div class="logo">KARTAL<span>PORTAL</span></div>
-    <button class="btn" style="width:auto; font-size:11px; background:#222; color:#fff;" onclick="adminPanelAc()">ADMİN</button>
+    <div style="display: flex; gap: 10px;">
+        <button class="btn" style="width:auto; font-size:11px; background:#ffcc00; color:#000;" onclick="oyunuAc()">🎮 OYUN</button>
+        <button class="btn" style="width:auto; font-size:11px; background:#222; color:#fff;" onclick="adminPanelAc()">ADMİN</button>
+    </div>
 </header>
 
 <div id="adminOverlay">
-    <div class="admin-modal">
-        <div class="admin-header">
+    <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-header">
             <span>🦅 SİTE YÖNETİMİ</span>
-            <span onclick="adminKapat()" style="cursor:pointer; font-size:20px;">×</span>
+            <span onclick="modalKapat('adminOverlay')" style="cursor:pointer; font-size:20px;">×</span>
         </div>
-        <div class="admin-body" id="adminUserContent">
+        <div class="modal-body" id="adminUserContent"></div>
+    </div>
+</div>
+
+<div id="gameOverlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span>🦖 DİNO RUN - SKORUNU KAYDET!</span>
+            <span onclick="modalKapat('gameOverlay')" style="cursor:pointer; font-size:20px;">×</span>
+        </div>
+        <div class="modal-body">
+            <div style="text-align:center; margin-bottom:10px; color:var(--ana);">Zıplamak için <b>BOŞLUK (SPACE)</b> veya <b>DOKUN</b></div>
+            <canvas id="gameCanvas" width="600" height="150"></canvas>
+            
+            <div class="leaderboard">
+                <h3 style="color:var(--ana); margin-top:0;">🏆 En İyi Skorlar (Liderlik Tablosu)</h3>
+                <div id="scoreList">Yükleniyor...</div>
             </div>
-        <div style="padding: 15px;">
-            <button class="btn" onclick="adminKapat()">PANELİ KAPAT</button>
         </div>
     </div>
 </div>
@@ -105,37 +122,22 @@
                 </tr>
             </thead>
             <tbody id="puanTablosu">
-                <tr class="row-gs">
-                    <td>1</td>
-                    <td>🦁 Galatasaray</td>
-                    <td>27</td>
-                    <td>64</td>
-                </tr>
-                <tr class="row-fb">
-                    <td>2</td>
-                    <td>🟡 Fenerbahçe</td>
-                    <td>28</td>
-                    <td>63</td>
-                </tr>
-                <tr class="row-bjk">
-                    <td>3</td>
-                    <td>🦅 Beşiktaş (1903)</td>
-                    <td>28</td>
-                    <td>52</td>
-                </tr>
+                <tr class="row-gs"><td>1</td><td>🦁 Galatasaray</td><td>27</td><td>64</td></tr>
+                <tr class="row-fb"><td>2</td><td>🟡 Fenerbahçe</td><td>28</td><td>63</td></tr>
+                <tr class="row-bjk"><td>3</td><td>🦅 Beşiktaş (1903)</td><td>28</td><td>52</td></tr>
             </tbody>
         </table>
     </div>
 
     <div id="authSection" class="auth-container">
         <div class="auth-box">
-            <h3 style="margin:0 0 10px 0">🦅 Kayıt Ol</h3>
+            <h3>🦅 Kayıt Ol</h3>
             <input type="text" id="regUser" placeholder="Kullanıcı Adı">
             <input type="password" id="regPass" placeholder="Şifre">
             <button class="btn" onclick="kayitOl()">HESAP OLUŞTUR</button>
         </div>
         <div class="auth-box">
-            <h3 style="margin:0 0 10px 0">⚽ Giriş Yap</h3>
+            <h3>⚽ Giriş Yap</h3>
             <input type="text" id="logUser" placeholder="Kullanıcı Adı">
             <input type="password" id="logPass" placeholder="Şifre">
             <button class="btn" onclick="girisYap()">TRİBÜNE GİR</button>
@@ -148,17 +150,7 @@
 
     <div class="main-grid">
         <div class="haber-sol" id="haberMain">
-            <article class="haber-box">
-                <img src="https://image.fanatik.com.tr/i/fanatik/75/0x410/69ccfef7e558b6bdbdb65150.jpg" style="width:100%">
-                <div class="haber-text">
-                    <span class="yt-tarih">📅 5 Nisan 2026</span>
-                    <h1>Beşiktaş, Derbi Hazırlıklarını Sürdürüyor</h1>
-                    <p style="color:#bbb;">Nevzat Demir Tesisleri'nde gerçekleştirilen antrenmanda taktik varyasyonlar üzerinde duruldu.</p>
-                    <div style="margin-top:15px; border-top:1px solid #222; padding-top:10px; color:var(--ana); font-size:13px; font-weight:bold;">✍️ Editör: Berat</div>
-                </div>
-            </article>
-        </div>
-
+            </div>
         <div class="yorum-sidebar">
             <div class="y-header">CANLI TRİBÜN</div>
             <div class="y-liste" id="yorumListesi_haber1"></div>
@@ -202,27 +194,22 @@
             setInterval(() => {
                 const fark = hedef - new Date().getTime();
                 if(fark < 0) { document.getElementById(m.id+"Timer").innerText = "MAÇ BAŞLADI"; return; }
-                const g = Math.floor(fark / 86400000);
-                const s = Math.floor((fark % 86400000) / 3600000);
-                const d = Math.floor((fark % 3600000) / 60000);
-                const sn = Math.floor((fark % 60000) / 1000);
+                const g = Math.floor(fark / 86400000), s = Math.floor((fark % 86400000) / 3600000), d = Math.floor((fark % 3600000) / 60000), sn = Math.floor((fark % 60000) / 1000);
                 document.getElementById(m.id+"Timer").innerText = `${g}g ${s}s ${d}d ${sn}s`;
             }, 1000);
         });
     }
     maclariGuncelle();
 
-    // GİRİŞ & KAYIT
+    // AUTH
     function kayitOl() {
-        const ad = document.getElementById('regUser').value.trim();
-        const sifre = document.getElementById('regPass').value.trim();
+        const ad = document.getElementById('regUser').value.trim(), sifre = document.getElementById('regPass').value.trim();
         if(ad.length < 3) return;
         db.ref('users/' + ad).set({ sifre: sifre }).then(() => alert("Kayıt Başarılı!"));
     }
 
     function girisYap() {
-        const ad = document.getElementById('logUser').value.trim();
-        const sifre = document.getElementById('logPass').value.trim();
+        const ad = document.getElementById('logUser').value.trim(), sifre = document.getElementById('logPass').value.trim();
         db.ref('users/' + ad).once('value', s => {
             if(s.val() && s.val().sifre === sifre) {
                 aktifUser = ad;
@@ -231,7 +218,7 @@
                 document.getElementById('userDisplay').innerText = ad;
                 document.getElementById('yInput_haber1').style.display = 'block';
                 yorumlariCek('haber1');
-            } else alert("Kullanıcı adı veya şifre hatalı!");
+            } else alert("Hata!");
         });
     }
 
@@ -248,32 +235,75 @@
         });
     }
 
-    // ADMİN PANEL FONKSİYONLARI
+    function modalKapat(id) { document.getElementById(id).style.display = 'none'; }
+
     function adminPanelAc() {
-        const pass = prompt("Admin Şifresi:");
-        if(pass === "beratadminoldu123") {
+        if(prompt("Admin Şifresi:") === "beratadminoldu123") {
             document.getElementById('adminOverlay').style.display = 'block';
             db.ref('users').once('value', s => {
                 let html = "";
-                const users = s.val();
-                for(let username in users) {
-                    html += `
-                    <div class="admin-user-card">
-                        <div>
-                            <b>👤 ${username}</b>
-                        </div>
-                        <span>🔑 ${users[username].sifre}</span>
-                    </div>`;
-                }
-                document.getElementById('adminUserContent').innerHTML = html || "<p style='text-align:center;'>Kayıtlı kullanıcı yok.</p>";
+                for(let u in s.val()) html += `<div style="background:#1a1a1a; padding:10px; margin-bottom:5px; border-radius:5px;"><b>👤 ${u}</b> <span style="color:#888; float:right;">🔑 ${s.val()[u].sifre}</span></div>`;
+                document.getElementById('adminUserContent').innerHTML = html;
             });
-        } else {
-            alert("Hatalı admin şifresi!");
         }
     }
 
-    function adminKapat() {
-        document.getElementById('adminOverlay').style.display = 'none';
+    // --- OYUN SİSTEMİ ---
+    function oyunuAc() {
+        if(!aktifUser) { alert("Oyun oynamak için önce giriş yapmalısın! 🦅"); return; }
+        document.getElementById('gameOverlay').style.display = 'block';
+        baslatDino();
+        skorlariYukle();
+    }
+
+    function skorlariYukle() {
+        db.ref('oyun_skorlari').orderByValue().limitToLast(5).on('value', s => {
+            let h = "";
+            let liste = [];
+            s.forEach(child => { liste.push({ad: child.key, skor: child.val()}); });
+            liste.reverse().forEach(u => h += `<div class="score-row"><span>${u.ad}</span><b>${u.skor} Puan</b></div>`);
+            document.getElementById('scoreList').innerHTML = h;
+        });
+    }
+
+    function baslatDino() {
+        const canvas = document.getElementById('gameCanvas'), ctx = canvas.getContext('2d');
+        let dino = { x: 50, y: 110, w: 30, h: 30, dy: 0, jump: -10, ground: 110, gravity: 0.6 };
+        let obstacles = [], score = 0, gameActive = true;
+
+        function draw() {
+            if(!gameActive) return;
+            ctx.clearRect(0,0,600,150);
+            
+            // Dino
+            ctx.fillStyle = "#000";
+            ctx.fillRect(dino.x, dino.y, dino.w, dino.h);
+            dino.dy += dino.gravity;
+            dino.y += dino.dy;
+            if(dino.y > dino.ground) { dino.y = dino.ground; dino.dy = 0; }
+
+            // Engeller
+            if(Math.random() < 0.02) obstacles.push({ x: 600, y: 120, w: 20, h: 20 });
+            obstacles.forEach((o, i) => {
+                o.x -= 5;
+                ctx.fillStyle = "red";
+                ctx.fillRect(o.x, o.y, o.w, o.h);
+                // Çarpışma
+                if(dino.x < o.x + o.w && dino.x + dino.w > o.x && dino.y < o.y + o.h && dino.y + dino.h > o.y) {
+                    gameActive = false;
+                    db.ref('oyun_skorlari/' + aktifUser).transaction(current => (score > (current || 0)) ? score : current);
+                    alert("YANDIN! Skorun: " + score);
+                }
+            });
+            obstacles = obstacles.filter(o => o.x > -20);
+            
+            score++;
+            ctx.fillStyle = "#000"; ctx.fillText("SKOR: " + score, 530, 20);
+            requestAnimationFrame(draw);
+        }
+        window.onkeydown = (e) => { if(e.code === "Space" && dino.y === dino.ground) dino.dy = dino.jump; };
+        canvas.onclick = () => { if(dino.y === dino.ground) dino.dy = dino.jump; };
+        draw();
     }
 
     // YOUTUBE
@@ -283,16 +313,14 @@
         if(data.items && data.items.length > 0) {
             const v = data.items[0];
             const yuklenmeZamani = new Date(v.snippet.publishedAt).toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-            const html = `
+            document.getElementById('haberMain').innerHTML = `
                 <article class="haber-box">
                     <iframe style="width:100%; aspect-ratio:16/9; border:0;" src="https://www.youtube.com/embed/${v.id.videoId}" allowfullscreen></iframe>
                     <div class="haber-text">
                         <span class="yt-tarih">📺 Video Yüklendi: ${yuklenmeZamani}</span>
-                        <h1 style="font-size:22px; margin:0;">${v.snippet.title}</h1>
-                        <div style="margin-top:10px; color:var(--ana); font-size:12px; font-weight:bold;">✍️ Otomatik Yayınlandı</div>
+                        <h1>${v.snippet.title}</h1>
                     </div>
                 </article>`;
-            document.getElementById('haberMain').insertAdjacentHTML('afterbegin', html);
         }
     });
 </script>

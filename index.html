@@ -52,15 +52,13 @@
         input { width: 100%; padding: 12px; margin: 8px 0; background: #1a1a1a; border: 1px solid #333; color: white; border-radius: 8px; outline: none; }
         .btn { background: var(--ana); color: #000; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; }
 
-        /* ADMİN & OYUN OVERLAY */
+        /* MODALLAR */
         #adminOverlay, #gameOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; backdrop-filter: blur(8px); }
         .modal-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #111; width: 95%; max-width: 800px; border-radius: 20px; border: 2px solid var(--ana); overflow: hidden; }
         .modal-header { background: var(--ana); color: #000; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 900; }
         .modal-body { padding: 20px; max-height: 500px; overflow-y: auto; }
         
-        /* OYUN ALANI */
         #gameCanvas { background: #fff; display: block; margin: 0 auto; border-radius: 10px; max-width: 100%; }
-        .leaderboard { margin-top: 20px; border-top: 1px solid #333; padding-top: 15px; }
         .score-row { display: flex; justify-content: space-between; padding: 8px; background: #1a1a1a; margin-bottom: 5px; border-radius: 5px; }
 
         @media (max-width: 768px) {
@@ -92,17 +90,12 @@
 <div id="gameOverlay">
     <div class="modal-content">
         <div class="modal-header">
-            <span>🦖 DİNO RUN - SKORUNU KAYDET!</span>
+            <span>🦖 DİNO RUN - SKOR TABLOSU</span>
             <span onclick="modalKapat('gameOverlay')" style="cursor:pointer; font-size:20px;">×</span>
         </div>
         <div class="modal-body">
-            <div style="text-align:center; margin-bottom:10px; color:var(--ana);">Zıplamak için <b>BOŞLUK (SPACE)</b> veya <b>DOKUN</b></div>
             <canvas id="gameCanvas" width="600" height="150"></canvas>
-            
-            <div class="leaderboard">
-                <h3 style="color:var(--ana); margin-top:0;">🏆 En İyi Skorlar (Liderlik Tablosu)</h3>
-                <div id="scoreList">Yükleniyor...</div>
-            </div>
+            <div id="scoreList" style="margin-top:20px;"></div>
         </div>
     </div>
 </div>
@@ -111,15 +104,10 @@
     <div class="mac-konteynir" id="maclar"></div>
 
     <div class="puan-durumu-box">
-        <h3 style="margin-top:0; color:var(--ana);">🏆 Süper Lig Puan Durumu</h3>
+        <h3 style="margin:0 0 15px 0; color:var(--ana);">🏆 Süper Lig Puan Durumu</h3>
         <table class="puan-tablo">
             <thead>
-                <tr>
-                    <th>Sıra</th>
-                    <th>Takım</th>
-                    <th>O</th>
-                    <th>Puan</th>
-                </tr>
+                <tr><th>Sıra</th><th>Takım</th><th>O</th><th>Puan</th></tr>
             </thead>
             <tbody id="puanTablosu">
                 <tr class="row-gs"><td>1</td><td>🦁 Galatasaray</td><td>27</td><td>64</td></tr>
@@ -150,7 +138,17 @@
 
     <div class="main-grid">
         <div class="haber-sol" id="haberMain">
-            </div>
+            <article class="haber-box">
+                <img src="https://image.fanatik.com.tr/i/fanatik/75/0x410/69ccfef7e558b6bdbdb65150.jpg" style="width:100%">
+                <div class="haber-text">
+                    <span class="yt-tarih">📅 5 Nisan 2026</span>
+                    <h1>Beşiktaş, Derbi Hazırlıklarını Sürdürüyor</h1>
+                    <p style="color:#bbb;">Nevzat Demir Tesisleri'nde gerçekleştirilen antrenmanda taktik varyasyonlar üzerinde duruldu. Teknik ekip, futbolcuların hırsından oldukça memnun.</p>
+                    <div style="margin-top:15px; border-top:1px solid #222; padding-top:10px; color:var(--ana); font-size:13px; font-weight:bold;">✍️ Editör: Berat</div>
+                </div>
+            </article>
+        </div>
+
         <div class="yorum-sidebar">
             <div class="y-header">CANLI TRİBÜN</div>
             <div class="y-liste" id="yorumListesi_haber1"></div>
@@ -248,79 +246,50 @@
         }
     }
 
-    // --- OYUN SİSTEMİ ---
     function oyunuAc() {
-        if(!aktifUser) { alert("Oyun oynamak için önce giriş yapmalısın! 🦅"); return; }
+        if(!aktifUser) { alert("Önce giriş yapmalısın!"); return; }
         document.getElementById('gameOverlay').style.display = 'block';
         baslatDino();
-        skorlariYukle();
-    }
-
-    function skorlariYukle() {
-        db.ref('oyun_skorlari').orderByValue().limitToLast(5).on('value', s => {
-            let h = "";
-            let liste = [];
-            s.forEach(child => { liste.push({ad: child.key, skor: child.val()}); });
-            liste.reverse().forEach(u => h += `<div class="score-row"><span>${u.ad}</span><b>${u.skor} Puan</b></div>`);
-            document.getElementById('scoreList').innerHTML = h;
-        });
     }
 
     function baslatDino() {
         const canvas = document.getElementById('gameCanvas'), ctx = canvas.getContext('2d');
-        let dino = { x: 50, y: 110, w: 30, h: 30, dy: 0, jump: -10, ground: 110, gravity: 0.6 };
-        let obstacles = [], score = 0, gameActive = true;
-
+        let dino = { x: 50, y: 110, w: 30, h: 30, dy: 0, jump: -10, ground: 110, gravity: 0.6 }, obstacles = [], score = 0, gameActive = true;
         function draw() {
             if(!gameActive) return;
             ctx.clearRect(0,0,600,150);
-            
-            // Dino
-            ctx.fillStyle = "#000";
-            ctx.fillRect(dino.x, dino.y, dino.w, dino.h);
-            dino.dy += dino.gravity;
-            dino.y += dino.dy;
+            ctx.fillStyle = "#000"; ctx.fillRect(dino.x, dino.y, dino.w, dino.h);
+            dino.dy += dino.gravity; dino.y += dino.dy;
             if(dino.y > dino.ground) { dino.y = dino.ground; dino.dy = 0; }
-
-            // Engeller
             if(Math.random() < 0.02) obstacles.push({ x: 600, y: 120, w: 20, h: 20 });
-            obstacles.forEach((o, i) => {
-                o.x -= 5;
-                ctx.fillStyle = "red";
-                ctx.fillRect(o.x, o.y, o.w, o.h);
-                // Çarpışma
+            obstacles.forEach(o => { o.x -= 5; ctx.fillStyle = "red"; ctx.fillRect(o.x, o.y, o.w, o.h);
                 if(dino.x < o.x + o.w && dino.x + dino.w > o.x && dino.y < o.y + o.h && dino.y + dino.h > o.y) {
-                    gameActive = false;
-                    db.ref('oyun_skorlari/' + aktifUser).transaction(current => (score > (current || 0)) ? score : current);
-                    alert("YANDIN! Skorun: " + score);
+                    gameActive = false; db.ref('oyun_skorlari/' + aktifUser).set(score); alert("Yandın! Skor: " + score);
                 }
             });
-            obstacles = obstacles.filter(o => o.x > -20);
-            
-            score++;
-            ctx.fillStyle = "#000"; ctx.fillText("SKOR: " + score, 530, 20);
-            requestAnimationFrame(draw);
+            obstacles = obstacles.filter(o => o.x > -20); score++;
+            ctx.fillStyle = "#000"; ctx.fillText("Skor: " + score, 540, 20); requestAnimationFrame(draw);
         }
         window.onkeydown = (e) => { if(e.code === "Space" && dino.y === dino.ground) dino.dy = dino.jump; };
-        canvas.onclick = () => { if(dino.y === dino.ground) dino.dy = dino.jump; };
         draw();
     }
 
-    // YOUTUBE
+    // YOUTUBE (Dinamik Video)
     const KANAL_ID = "UC7-saBTRrj6MorxbLf6gVCw";
     fetch(`https://www.googleapis.com/youtube/v3/search?key=AIzaSyD3SXiufKR5EI269yI0hdnA4qPRDcGQK_g&channelId=${KANAL_ID}&part=snippet,id&order=date&maxResults=1&type=video`)
     .then(r => r.json()).then(data => {
         if(data.items && data.items.length > 0) {
             const v = data.items[0];
             const yuklenmeZamani = new Date(v.snippet.publishedAt).toLocaleString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-            document.getElementById('haberMain').innerHTML = `
+            document.getElementById('haberMain').insertAdjacentHTML('afterbegin', `
                 <article class="haber-box">
                     <iframe style="width:100%; aspect-ratio:16/9; border:0;" src="https://www.youtube.com/embed/${v.id.videoId}" allowfullscreen></iframe>
                     <div class="haber-text">
                         <span class="yt-tarih">📺 Video Yüklendi: ${yuklenmeZamani}</span>
                         <h1>${v.snippet.title}</h1>
+                        <div style="margin-top:10px; color:var(--ana); font-size:12px; font-weight:bold;">✍️ Otomatik Yayınlandı</div>
                     </div>
-                </article>`;
+                </article>`);
         }
     });
 </script>

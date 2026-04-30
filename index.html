@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>İPT v4.5 | Modern Operasyon</title>
+    <title>İPT v4.6 | Güvenli Operasyon</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --p: #00ff41; --bg: #050505; --c: #0f0f0f; }
@@ -24,17 +24,19 @@
         .page { display: none; flex-direction: column; height: calc(100vh - 75px); padding: 15px; overflow-y: auto; }
         .page.active { display: flex; }
 
-        /* KÜÇÜK VİDEO KARTLARI */
+        /* VİDEO GRID */
         .vid-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .video-card { background: #111; border: 1px solid #222; border-radius: 10px; overflow: hidden; font-size: 0.8rem; }
         .video-card iframe { width: 100%; aspect-ratio: 16/9; border: none; }
         .video-info { padding: 8px; border-top: 1px solid var(--p); }
         .v-date { font-size: 0.6rem; color: #555; display: block; margin-top: 4px; }
 
-        /* ARAMA / GÖRÜNTÜLÜ KONUŞMA */
-        .call-card { background: #111; border: 1px solid #222; border-radius: 20px; padding: 30px; text-align: center; margin-top: 20px; border-bottom: 4px solid var(--p); }
-        .call-btn { width: 80px; height: 80px; border-radius: 50%; background: var(--p); border: none; font-size: 2rem; cursor: pointer; animation: pulse 2s infinite; box-shadow: 0 0 20px var(--p); }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0px rgba(0, 255, 65, 0.4); } 100% { box-shadow: 0 0 0 20px rgba(0, 255, 65, 0); } }
+        /* ARAMA EKRANI */
+        .call-card { background: #111; border: 1px solid #222; border-radius: 20px; padding: 40px 20px; text-align: center; margin-top: 20px; border-bottom: 4px solid var(--p); }
+        .call-btn { width: 100px; height: 100px; border-radius: 50%; background: var(--p); border: none; font-size: 2.5rem; cursor: pointer; transition: 0.3s; box-shadow: 0 0 20px rgba(0, 255, 65, 0.4); }
+        .call-btn:active { transform: scale(0.9); }
+        .pulse-animation { animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0px rgba(0, 255, 65, 0.4); } 100% { box-shadow: 0 0 0 25px rgba(0, 255, 65, 0); } }
 
         /* CHAT */
         #chat-list { display: flex; flex-direction: column; gap: 10px; padding-bottom: 100px; }
@@ -74,12 +76,9 @@
         <div id="page-call" class="page">
             <h2 style="font-family:'Orbitron'; color:var(--p);">GÜVENLİ ARAMA</h2>
             <div class="call-card">
-                <button class="call-btn" onclick="startCall()">📞</button>
-                <h3 id="call-status" style="margin-top:20px;">BAĞLANTI BEKLENİYOR...</h3>
-                <p style="font-size:0.8rem; color:#555;">Tüm aramalar uçtan uca şifrelenir.</p>
-                <div id="video-frame" style="display:none; margin-top:20px;">
-                    <iframe id="call-iframe" src="" style="width:100%; height:400px; border:1px solid var(--p); border-radius:15px;"></iframe>
-                </div>
+                <button id="main-call-btn" class="call-btn" onclick="startCall()">📞</button>
+                <h3 id="call-status" style="margin-top:25px; letter-spacing:2px;">BAĞLANTI BEKLENİYOR...</h3>
+                <p id="call-desc" style="font-size:0.85rem; color:#666; line-height:1.5;">Admin bir toplantı başlattığında butona basarak şifreli odaya katılabilirsin.</p>
             </div>
         </div>
 
@@ -93,10 +92,10 @@
             <div id="adm-auth"><input type="password" id="admK" placeholder="Admin Key"><button class="btn-main" style="background:#ff3e3e;" onclick="auth()">DOĞRULA</button></div>
             <div id="adm-panel" style="display:none;">
                 <div id="status-list"></div>
-                <button class="btn-main" onclick="nAnn()">📢 DUYURU</button>
-                <button class="btn-main" style="background:#00aaff; color:#fff;" onclick="nVid()">🎬 VİDEO</button>
-                <button class="btn-main" style="background:#ff9900; color:#000;" onclick="nCall()">📞 ARAMA ODA KUR</button>
-                <button class="btn-main" style="background:#ff3e3e; color:#fff;" onclick="set(ref(db, 'messages'), null)">SOHBETİ TEMİZLE</button>
+                <button class="btn-main" onclick="nAnn()">📢 DUYURU EKLE</button>
+                <button class="btn-main" style="background:#00aaff; color:#fff;" onclick="nVid()">🎬 VİDEO EKLE</button>
+                <button class="btn-main" style="background:#ff9900; color:#000;" onclick="nCall()">📞 ARAMA ODASI KUR</button>
+                <button class="btn-main" style="background:#ff3e3e; color:#fff;" onclick="clearMessages()">SOHBETİ TEMİZLE</button>
             </div>
         </div>
 
@@ -134,6 +133,7 @@
         };
 
         let me = "";
+        window.roomUrl = null;
 
         window.giris = () => {
             const u = document.getElementById('u').value.trim(), m = document.getElementById('m').value.trim().toLowerCase(), p = document.getElementById('p').value.trim();
@@ -141,7 +141,7 @@
                 me = u; document.getElementById('login-screen').style.display='none'; document.getElementById('app').style.display='flex';
                 const sR = ref(db, 'online/' + u); set(sR, true); onDisconnect(sR).set(false);
                 run();
-            } else { alert("Hatalı!"); }
+            } else { alert("Hatalı Giriş Bilgileri!"); }
         };
 
         function run() {
@@ -168,13 +168,19 @@
 
             onValue(ref(db, 'callRoom'), s => {
                 const st = document.getElementById('call-status');
+                const btn = document.getElementById('main-call-btn');
+                const desc = document.getElementById('call-desc');
                 if(s.val() && s.val().active) {
-                    st.innerHTML = "🔴 OTURUM AKTİF!";
+                    st.innerHTML = "🔴 OPERASYON AKTİF!";
                     st.style.color = "red";
+                    btn.classList.add('pulse-animation');
+                    desc.innerHTML = "Güvenli hat açıldı. Katılmak için butona bas.";
                     window.roomUrl = s.val().url;
                 } else {
                     st.innerHTML = "BAĞLANTI BEKLENİYOR...";
                     st.style.color = "#555";
+                    btn.classList.remove('pulse-animation');
+                    desc.innerHTML = "Admin bir toplantı başlattığında butona basarak şifreli odaya katılabilirsin.";
                     window.roomUrl = null;
                 }
             });
@@ -183,16 +189,16 @@
                 const l = document.getElementById('status-list'); l.innerHTML = '';
                 Object.keys(teşkilat).forEach(u => {
                     const o = s.val() && s.val()[u];
-                    l.innerHTML += `<div class="stat-item">${u} <span class="dot" style="background:${o?'var(--p)':'#333'};"></span></div>`;
+                    l.innerHTML += `<div class="stat-item">${u} <span class="dot" style="background:${o?'var(--p)':'#333'}; box-shadow: 0 0 10px ${o?var(--p):'transparent'}"></span></div>`;
                 });
             });
         }
 
         window.startCall = () => {
             if(window.roomUrl) {
-                document.getElementById('video-frame').style.display = 'block';
-                document.getElementById('call-iframe').src = window.roomUrl;
-            } else { alert("Şu an aktif bir görüşme odası yok."); }
+                // Google Meet'in iframe engellemesini aşmak için yeni sekmede açıyoruz.
+                window.open(window.roomUrl, '_blank');
+            } else { alert("Şu an aktif bir operasyon odası yok."); }
         };
 
         window.tab = (id, el) => {
@@ -207,19 +213,14 @@
         };
 
         window.auth = () => { if(document.getElementById('admK').value === "imanpoweradmini31") { document.getElementById('adm-auth').style.display='none'; document.getElementById('adm-panel').style.display='block'; } };
-
         window.nAnn = () => { const t = prompt("Duyuru:"); if(t) push(ref(db, 'ann'), { t, d: new Date().toLocaleString('tr-TR') }); };
-        
-        window.nVid = () => { 
-            const t = prompt("Başlık:"), url = prompt("Link:"); 
-            if(t && url) push(ref(db, 'videos'), { t, url, d: new Date().toLocaleDateString('tr-TR') }); 
-        };
-
+        window.nVid = () => { const t = prompt("Başlık:"), url = prompt("YouTube Linki:"); if(t && url) push(ref(db, 'videos'), { t, url, d: new Date().toLocaleDateString('tr-TR') }); };
         window.nCall = () => {
-            const url = prompt("Jitsi veya Meet Linki:");
+            const url = prompt("Google Meet veya Jitsi Linki (Kapatmak için boş bırak):");
             if(url) set(ref(db, 'callRoom'), { active: true, url: url });
             else set(ref(db, 'callRoom'), { active: false });
         };
+        window.clearMessages = () => { if(confirm("Tüm chat geçmişi silinsin mi?")) set(ref(db, 'messages'), null); };
     </script>
 </body>
 </html>

@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>İPT v4.6 | Güvenli Operasyon</title>
+    <title>İPT v4.7 | Güvenli Erişim</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --p: #00ff41; --bg: #050505; --c: #0f0f0f; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body { background: var(--bg); color: #fff; font-family: 'Rajdhani', sans-serif; margin: 0; padding: 0; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; }
         
-        /* GİRİŞ */
         #login-screen { position: fixed; inset: 0; background: radial-gradient(circle at center, #111 0%, #000 100%); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; }
         .login-card { width: 92%; max-width: 400px; padding: 35px; background: var(--c); border: 1px solid var(--p); border-radius: 20px; text-align: center; box-shadow: 0 0 50px rgba(0, 255, 65, 0.1); border-top: 5px solid var(--p); }
         h1 { font-family: 'Orbitron'; font-weight: 900; color: var(--p); letter-spacing: 5px; margin-bottom: 25px; text-shadow: 0 0 10px var(--p); }
-        input { width: 100%; padding: 14px; background: #000; border: 1px solid #222; color: #fff; border-radius: 10px; font-family: 'Rajdhani'; font-size: 1rem; margin-top: 4px; }
-        .btn-main { width: 100%; padding: 16px; background: var(--p); color: #000; border: none; border-radius: 10px; font-family: 'Orbitron'; font-weight: 900; cursor: pointer; transition: 0.3s; margin-top: 15px; }
+        input { width: 100%; padding: 14px; background: #000; border: 1px solid #222; color: #fff; border-radius: 10px; font-family: 'Rajdhani'; font-size: 1rem; margin-top: 10px; border: 1px solid #333; transition: 0.3s; }
+        input:focus { border-color: var(--p); box-shadow: 0 0 10px rgba(0, 255, 65, 0.2); }
+        .btn-main { width: 100%; padding: 16px; background: var(--p); color: #000; border: none; border-radius: 10px; font-family: 'Orbitron'; font-weight: 900; cursor: pointer; transition: 0.3s; margin-top: 20px; }
+        .btn-main:hover { background: #00cc33; transform: scale(1.02); }
 
         #app { display: none; width: 100%; height: 100%; flex-direction: column; }
         nav { position: fixed; bottom: 0; width: 100%; height: 75px; background: #000; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #1a1a1a; z-index: 500; padding-bottom: env(safe-area-inset-bottom); }
@@ -24,21 +25,17 @@
         .page { display: none; flex-direction: column; height: calc(100vh - 75px); padding: 15px; overflow-y: auto; }
         .page.active { display: flex; }
 
-        /* VİDEO GRID */
         .vid-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .video-card { background: #111; border: 1px solid #222; border-radius: 10px; overflow: hidden; font-size: 0.8rem; }
         .video-card iframe { width: 100%; aspect-ratio: 16/9; border: none; }
         .video-info { padding: 8px; border-top: 1px solid var(--p); }
         .v-date { font-size: 0.6rem; color: #555; display: block; margin-top: 4px; }
 
-        /* ARAMA EKRANI */
-        .call-card { background: #111; border: 1px solid #222; border-radius: 20px; padding: 40px 20px; text-align: center; margin-top: 20px; border-bottom: 4px solid var(--p); }
-        .call-btn { width: 100px; height: 100px; border-radius: 50%; background: var(--p); border: none; font-size: 2.5rem; cursor: pointer; transition: 0.3s; box-shadow: 0 0 20px rgba(0, 255, 65, 0.4); }
-        .call-btn:active { transform: scale(0.9); }
-        .pulse-animation { animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0px rgba(0, 255, 65, 0.4); } 100% { box-shadow: 0 0 0 25px rgba(0, 255, 65, 0); } }
+        .call-card { background: #111; border: 1px solid #222; border-radius: 20px; padding: 40px 20px; text-align: center; margin-top: 20px; }
+        .call-btn { width: 100px; height: 100px; border-radius: 50%; background: var(--p); border: none; font-size: 2.5rem; cursor: pointer; }
+        .pulse { animation: p 2s infinite; }
+        @keyframes p { 0% { box-shadow: 0 0 0 0px rgba(0, 255, 65, 0.4); } 100% { box-shadow: 0 0 0 20px rgba(0, 255, 65, 0); } }
 
-        /* CHAT */
         #chat-list { display: flex; flex-direction: column; gap: 10px; padding-bottom: 100px; }
         .m-wrap { max-width: 85%; align-self: flex-start; }
         .m-wrap.me { align-self: flex-end; }
@@ -46,7 +43,7 @@
         .me .m-box { border-color: var(--p); background: rgba(0, 255, 65, 0.05); }
         .chat-input-fixed { position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 500px; display: flex; gap: 8px; background: #000; padding: 6px; border-radius: 12px; border: 1px solid #222; }
 
-        .stat-item { background: #0c0c0c; border: 1px solid #1a1a1a; padding: 12px; border-radius: 10px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .stat-item { background: #0c0c0c; border: 1px solid #1a1a1a; padding: 12px; border-radius: 10px; margin-bottom: 6px; display: flex; justify-content: space-between; }
         .dot { width: 10px; height: 10px; border-radius: 50%; }
     </style>
 </head>
@@ -55,10 +52,11 @@
     <div id="login-screen">
         <div class="login-card">
             <h1>İM-P-T</h1>
-            <input type="text" id="u" placeholder="Kod Adı" autocomplete="off"><br>
-            <input type="email" id="m" placeholder="Gmail" autocomplete="off"><br>
-            <input type="password" id="p" placeholder="Şifre"><br>
+            <input type="text" id="u" placeholder="Kod Adı (Küçük harf)" autocomplete="off">
+            <input type="email" id="m" placeholder="Gmail" autocomplete="off">
+            <input type="password" id="p" placeholder="Şifre">
             <button class="btn-main" onclick="giris()">BAĞLAN</button>
+            <p id="error-msg" style="color: #ff3e3e; font-size: 0.8rem; margin-top: 15px; display: none;">Hatalı bilgi girişi!</p>
         </div>
     </div>
 
@@ -67,35 +65,27 @@
             <h2 style="font-family:'Orbitron'; color:var(--p);">KAYITLAR</h2>
             <div id="ann-container"></div>
         </div>
-        
-        <div id="page-vid" class="page">
-            <h2 style="font-family:'Orbitron'; color:var(--p);">VİDEOLAR</h2>
-            <div class="vid-grid" id="vid-container"></div>
-        </div>
-
+        <div id="page-vid" class="page"><h2 style="font-family:'Orbitron'; color:var(--p);">VİDEOLAR</h2><div class="vid-grid" id="vid-container"></div></div>
         <div id="page-call" class="page">
             <h2 style="font-family:'Orbitron'; color:var(--p);">GÜVENLİ ARAMA</h2>
             <div class="call-card">
-                <button id="main-call-btn" class="call-btn" onclick="startCall()">📞</button>
-                <h3 id="call-status" style="margin-top:25px; letter-spacing:2px;">BAĞLANTI BEKLENİYOR...</h3>
-                <p id="call-desc" style="font-size:0.85rem; color:#666; line-height:1.5;">Admin bir toplantı başlattığında butona basarak şifreli odaya katılabilirsin.</p>
+                <button id="call-btn" class="call-btn" onclick="startCall()">📞</button>
+                <h3 id="call-status" style="margin-top:20px; color:#555;">BAĞLANTI BEKLENİYOR...</h3>
             </div>
         </div>
-
         <div id="page-chat" class="page">
             <div id="chat-list"></div>
             <div class="chat-input-fixed"><input type="text" id="msgI" placeholder="Mesaj..."><button onclick="send()" style="background:var(--p); border:none; padding:10px 15px; border-radius:10px; font-weight:900;">></button></div>
         </div>
-
         <div id="page-admin" class="page">
             <h2 style="font-family:'Orbitron'; color:#ff3e3e;">YÖNETİM</h2>
             <div id="adm-auth"><input type="password" id="admK" placeholder="Admin Key"><button class="btn-main" style="background:#ff3e3e;" onclick="auth()">DOĞRULA</button></div>
             <div id="adm-panel" style="display:none;">
                 <div id="status-list"></div>
-                <button class="btn-main" onclick="nAnn()">📢 DUYURU EKLE</button>
-                <button class="btn-main" style="background:#00aaff; color:#fff;" onclick="nVid()">🎬 VİDEO EKLE</button>
-                <button class="btn-main" style="background:#ff9900; color:#000;" onclick="nCall()">📞 ARAMA ODASI KUR</button>
-                <button class="btn-main" style="background:#ff3e3e; color:#fff;" onclick="clearMessages()">SOHBETİ TEMİZLE</button>
+                <button class="btn-main" onclick="nAnn()">📢 DUYURU</button>
+                <button class="btn-main" style="background:#00aaff; color:#fff;" onclick="nVid()">🎬 VİDEO</button>
+                <button class="btn-main" style="background:#ff9900; color:#000;" onclick="nCall()">📞 ARAMA KUR</button>
+                <button class="btn-main" style="background:#ff3e3e; color:#fff;" onclick="clearChat()">SOHBETİ SİL</button>
             </div>
         </div>
 
@@ -136,12 +126,23 @@
         window.roomUrl = null;
 
         window.giris = () => {
-            const u = document.getElementById('u').value.trim(), m = document.getElementById('m').value.trim().toLowerCase(), p = document.getElementById('p').value.trim();
+            const u = document.getElementById('u').value.trim().toLowerCase();
+            const m = document.getElementById('m').value.trim().toLowerCase();
+            const p = document.getElementById('p').value.trim();
+            const err = document.getElementById('error-msg');
+
             if(teşkilat[u] && teşkilat[u].m === m && teşkilat[u].p === p) {
-                me = u; document.getElementById('login-screen').style.display='none'; document.getElementById('app').style.display='flex';
-                const sR = ref(db, 'online/' + u); set(sR, true); onDisconnect(sR).set(false);
+                me = u;
+                document.getElementById('login-screen').style.display='none';
+                document.getElementById('app').style.display='flex';
+                const sR = ref(db, 'online/' + u);
+                set(sR, true);
+                onDisconnect(sR).set(false);
                 run();
-            } else { alert("Hatalı Giriş Bilgileri!"); }
+            } else {
+                err.style.display = 'block';
+                setTimeout(() => err.style.display = 'none', 3000);
+            }
         };
 
         function run() {
@@ -168,20 +169,13 @@
 
             onValue(ref(db, 'callRoom'), s => {
                 const st = document.getElementById('call-status');
-                const btn = document.getElementById('main-call-btn');
-                const desc = document.getElementById('call-desc');
+                const btn = document.getElementById('call-btn');
                 if(s.val() && s.val().active) {
-                    st.innerHTML = "🔴 OPERASYON AKTİF!";
-                    st.style.color = "red";
-                    btn.classList.add('pulse-animation');
-                    desc.innerHTML = "Güvenli hat açıldı. Katılmak için butona bas.";
-                    window.roomUrl = s.val().url;
+                    st.innerHTML = "🔴 OPERASYON AKTİF!"; st.style.color = "red";
+                    btn.classList.add('pulse'); window.roomUrl = s.val().url;
                 } else {
-                    st.innerHTML = "BAĞLANTI BEKLENİYOR...";
-                    st.style.color = "#555";
-                    btn.classList.remove('pulse-animation');
-                    desc.innerHTML = "Admin bir toplantı başlattığında butona basarak şifreli odaya katılabilirsin.";
-                    window.roomUrl = null;
+                    st.innerHTML = "BAĞLANTI BEKLENİYOR..."; st.style.color = "#555";
+                    btn.classList.remove('pulse'); window.roomUrl = null;
                 }
             });
 
@@ -189,38 +183,26 @@
                 const l = document.getElementById('status-list'); l.innerHTML = '';
                 Object.keys(teşkilat).forEach(u => {
                     const o = s.val() && s.val()[u];
-                    l.innerHTML += `<div class="stat-item">${u} <span class="dot" style="background:${o?'var(--p)':'#333'}; box-shadow: 0 0 10px ${o?var(--p):'transparent'}"></span></div>`;
+                    l.innerHTML += `<div class="stat-item">${u} <span class="dot" style="background:${o?'var(--p)':'#333'};"></span></div>`;
                 });
             });
         }
 
-        window.startCall = () => {
-            if(window.roomUrl) {
-                // Google Meet'in iframe engellemesini aşmak için yeni sekmede açıyoruz.
-                window.open(window.roomUrl, '_blank');
-            } else { alert("Şu an aktif bir operasyon odası yok."); }
-        };
-
+        window.startCall = () => { if(window.roomUrl) window.open(window.roomUrl, '_blank'); else alert("Aktif oda yok!"); };
         window.tab = (id, el) => {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById('page-' + id).classList.add('active'); el.classList.add('active');
         };
-
         window.send = () => {
             const v = document.getElementById('msgI').value;
             if(v) { push(ref(db, 'messages'), { u: me, t: v }); document.getElementById('msgI').value = ''; }
         };
-
         window.auth = () => { if(document.getElementById('admK').value === "imanpoweradmini31") { document.getElementById('adm-auth').style.display='none'; document.getElementById('adm-panel').style.display='block'; } };
         window.nAnn = () => { const t = prompt("Duyuru:"); if(t) push(ref(db, 'ann'), { t, d: new Date().toLocaleString('tr-TR') }); };
-        window.nVid = () => { const t = prompt("Başlık:"), url = prompt("YouTube Linki:"); if(t && url) push(ref(db, 'videos'), { t, url, d: new Date().toLocaleDateString('tr-TR') }); };
-        window.nCall = () => {
-            const url = prompt("Google Meet veya Jitsi Linki (Kapatmak için boş bırak):");
-            if(url) set(ref(db, 'callRoom'), { active: true, url: url });
-            else set(ref(db, 'callRoom'), { active: false });
-        };
-        window.clearMessages = () => { if(confirm("Tüm chat geçmişi silinsin mi?")) set(ref(db, 'messages'), null); };
+        window.nVid = () => { const t = prompt("Başlık:"), url = prompt("YT Link:"); if(t && url) push(ref(db, 'videos'), { t, url, d: new Date().toLocaleDateString('tr-TR') }); };
+        window.nCall = () => { const url = prompt("Meet Linki:"); if(url) set(ref(db, 'callRoom'), { active: true, url: url }); else set(ref(db, 'callRoom'), { active: false }); };
+        window.clearChat = () => { if(confirm("Silinsin mi?")) set(ref(db, 'messages'), null); };
     </script>
 </body>
 </html>
